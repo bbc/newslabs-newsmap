@@ -6,6 +6,8 @@
 </div>
 
 <div id="sidebar" class="sidebar">
+    <ul class="cwlist">
+    </ul>
 </div>
 <!-- jQuery is used in the example to make JSON requests and for DOM manipulation -->
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -19,6 +21,8 @@
 // Initalise PolyMaps
 var po = org.polymaps;
 var storage = $.localStorage;
+var apikey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
+var host = "http://data.bbc.co.uk/v1/bbcrd-newslabs";
 
 // Add map to the div with the id "map"
 var map = po.map()
@@ -38,7 +42,7 @@ map.add(po.image()
 
 // Fetch the JSON that powers the SVG overlay
 map.add(po.geoJson()
-    .url("js/world-polymap.json")
+    .url("http://api.tinata.co.uk/js/world-polymap.json")
     .tile(false)
     .on("load", mapLoaded));
 
@@ -77,7 +81,7 @@ function mapLoaded(e) {
 
             // Draw the SVG for the country
             $(feature.element)
-                .attr("style", "fill: red; opacity: " + weight / 15000 + ";")
+                .attr("style", "fill: red; opacity: " + weight / 20000 + ";")
                 .attr("class", "interactive")
                 .attr("data-country-name", country.name);
             var tileStyle = "fill: transparent;";
@@ -101,23 +105,62 @@ function mapLoaded(e) {
 }
 
 function countryView(country) {
-    $('.sidebar').html(country.data('countryName'));
+    var countryName = country.data('countryName');
+    $('.sidebar').html(countryName);
     $('.sidebar').slideDown();
+    getCreativeWorks(countryName)
 }
 
-function occurrences(countryName) {
-
-    var n = storage.get(countryName);
-    if (n) {
-        return n;
+function getCreativeWorks(countryName) {
+    var resourceUri = getConceptUri(countryName);
+    if (resourceUri && resourceUri != '') {
+        var uri = host + "/creative-works?tag=" + resourceUri + " &limit=5&offset=0&apikey=" + apikey;
+        $.getJSON(uri).done(function(data) {
+            renderCreativeWorks(data);
+        });
     }
+}
 
-    var apikey = "0AxXaHTHrFXcoxvUPCn898lG3L4SpwTe";
-    var host = "http://data.bbc.co.uk/v1/bbcrd-newslabs";
+function renderCreativeWorks(data) {
+    console.log(data);
+    var ul = $('ul.cwlist');
+    $.each(data['@graph'], function(ix, item) {
+        var li = $('<li>').attr('id', ix)
+        var url = item.primaryContentOf;
+        var title = item.title;
+        var thumbnail = item.thumbnail;
+        li.append($('<a>').attr('class', "cwlink").attr('href', url).text(title));
+        // li.popover({
+        //     title: label,
+        //     placement: 'left',
+        //     html: true,
+        //     trigger: "hover",
+        //     content: function() {
+        //         var id = page + ix;
+        //         var pop = $('<div>');
+        //         var container = $('<div>').attr('class', 'tags').attr('id', id);
+        //         container.html('TAGS..')
+        //         pop.append(container);
+        //         return pop.html();
+        //     },
+        // });
+        console.log(title);
+        ul.append(li);
+    });
+}
 
+function prefix(s, key) {
+    return s + key.replace(/\./g, '_');
+}
+
+function getConceptUri(countryName) {
+
+    var resourceUri = storage.get(prefix('resourceUri', countryName));
+    if (resourceUri) {
+        return resourceUri;
+    }
     var conceptUri = host + "/concepts/tagged?q=" + countryName + "&limit=10&apikey=" + apikey;
 
-    var resourceUri;
     $.ajax({
         async: false,
         dataType: "json",
@@ -126,8 +169,25 @@ function occurrences(countryName) {
             resourceUri = data[3][0];
         }
     });
+    if (!resourceUri) {
+        resourceUri = 'unknown';
+    }
+    storage.set(prefix('resourceUri', countryName), resourceUri);
+    return resourceUri;
+}
 
-    var occurrence = 0;
+function occurrences(countryName) {
+
+    var occurrence = storage.get(prefix('occurrence', countryName));
+    if (occurrence) {
+        return occurrence;
+    }
+
+    var resourceUri = getConceptUri(countryName);
+    if (resourceUri == 'unknown') {
+        return 0;
+    }
+
     var occurrenceUri = host + "/concepts/co-occurrences?uri=" + resourceUri + "&limit=1&apikey=" + apikey;
     $.ajax({
         async: false,
@@ -137,7 +197,10 @@ function occurrences(countryName) {
             occurrence = data["co-occurrences"][0].occurrence;
         }
     });
-    storage.set(countryName, occurrences);
+    if (!occurrence) {
+        occurrence = 1;
+    }
+    storage.set(prefix('occurrence', countryName), occurrence);
     return occurrence;
 }
 </script>
