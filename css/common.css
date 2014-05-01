@@ -4,14 +4,22 @@ body {
     font-family: sans-serif;
 }
 
-svg.map {    
+svg.map {
   width: 100%;
   height: 100%;
 }
 
 #country-name {
     color: #fff;
-    position: absolute; top: 0; left: 20px;
+    text-shadow: 0 0 10px #000;
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 42px;
+    line-height: 42px;
+    padding: 0;
 }
 
 .sidebar {
@@ -21,4 +29,22 @@ svg.map {
     height: 100%;
     width: 300px;
     background: rgba(0,0,0,0.5);
+    padding: 10px;
+    color: #fff;
+    display: none;
+}
+
+.interactive,
+*[data-country-name] {
+    fill: red;
+}
+
+.interactive,
+*[data-country-name]:hover {
+    cursor: pointer !important;
+}
+
+.highlight {
+    fill: gold !important;
+    opacity: 1 !important;
 }
