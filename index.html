@@ -1,6 +1,8 @@
+<link rel="stylesheet" type="text/css" href="css/common.css"/>
+
 <!-- The object on the page to insert the map into -->
 <div id="map" class="world-map">
-    <h3 style="position: absolute; top: 0; left: 20px;" id="country-name"></h3>
+    <h3 id="country-name"></h3>
 </div>
 
 <!-- jQuery is used in the example to make JSON requests and for DOM manipulation -->
@@ -19,15 +21,25 @@ var po = org.polymaps;
 var map = po.map()
     .container(document.getElementById("map").appendChild(po.svg("svg")))
     .center({lat: 30, lon: 0})
-    .zoom(2.1);
+    .add(po.interact())
+    .add(po.hash())
+    .zoom(3);
 
+map.add(po.image()
+    .url(po.url("http://{S}tile.cloudmade.com"
+    + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
+    + "/999/256/{Z}/{X}/{Y}.png")
+    .hosts(["a.", "b.", "c.", ""])));
+        
 // Fetch the JSON that powers the SVG overlay
 map.add(po.geoJson()
     .url("js/world-polymap.json")
     .tile(false)
-    .zoom(3)
     .on("load", mapLoaded));
 
+map.add(po.compass()
+    .pan("none"));
+    
 function mapLoaded(e) {
     // Get data for all countries from Tinatapi (using jQuery to make the Ajax request)
     $.getJSON( "http://api.tinata.co.uk/countries.json", function(countriesJson) {
@@ -52,7 +64,7 @@ function mapLoaded(e) {
             }
 
             var country = countries[ feature.data.properties.iso2 ];
-            var tileStyle = "fill: #ccc;";
+            var tileStyle = "fill: transparent;";
             
             // Check for warnings
             if (country.warnings) {
