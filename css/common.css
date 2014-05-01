@@ -1,5 +1,10 @@
-/* Map CSS */
-svg.map {
+body {    
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+svg.map {    
   width: 100%;
   height: 100%;
 }
@@ -7,4 +12,13 @@ svg.map {
 #country-name {
     color: #fff;
     position: absolute; top: 0; left: 20px;
+}
+
+.sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 300px;
+    background: rgba(0,0,0,0.5);
 }
