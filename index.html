@@ -1,36 +1,41 @@
-<link rel="stylesheet" type="text/css" href="css/common.css"/>
+<link rel="stylesheet" type="text/css" href="css/common.css" />
 
 <!-- The object on the page to insert the map into -->
 <div id="map" class="world-map">
     <h3 id="country-name"></h3>
 </div>
 
+<div id="sidebar" class="sidebar">
+</div>
 <!-- jQuery is used in the example to make JSON requests and for DOM manipulation -->
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <!-- Modernizr is required by Polymaps -->
 <script src="js/modernizr.min.js"></script>
 <!-- Polymaps is used to draw the maps -->
 <script src="js/polymaps.min.js"></script>
+<script src="js/jquery.storageapi.min.js"></script>
 
 <script>
-
 // Initalise PolyMaps
 var po = org.polymaps;
+var storage = $.localStorage;
 
 // Add map to the div with the id "map"
 var map = po.map()
     .container(document.getElementById("map").appendChild(po.svg("svg")))
-    .center({lat: 30, lon: 0})
+    .center({
+        lat: 30,
+        lon: 0
+    })
     .add(po.interact())
     .add(po.hash())
     .zoom(3);
 
 map.add(po.image()
-    .url(po.url("http://{S}tile.cloudmade.com"
-    + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
-    + "/999/256/{Z}/{X}/{Y}.png")
-    .hosts(["a.", "b.", "c.", ""])));
-        
+    .url(po.url("http://{S}tile.cloudmade.com" + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
+            + "/999/256/{Z}/{X}/{Y}.png")
+        .hosts(["a.", "b.", "c.", ""])));
+
 // Fetch the JSON that powers the SVG overlay
 map.add(po.geoJson()
     .url("js/world-polymap.json")
@@ -39,68 +44,100 @@ map.add(po.geoJson()
 
 map.add(po.compass()
     .pan("none"));
-    
+
 function mapLoaded(e) {
     // Get data for all countries from Tinatapi (using jQuery to make the Ajax request)
-    $.getJSON( "http://api.tinata.co.uk/countries.json", function(countriesJson) {
+    $.getJSON("http://api.tinata.co.uk/countries.json", function(countriesJson) {
 
-        $('#map').css({visibility: 'visible'});
+        $('#map').css({
+            visibility: 'visible'
+        });
 
         // Convert list of countries to be indexed by 2 character ISO code
         // for efficient lookup e.g. countries.US.name = "United States"
         var countries = {};
         for (i in countriesJson) {
-            countries[ countriesJson[i].iso2 ] = countriesJson[i];
+            countries[countriesJson[i].iso2] = countriesJson[i];
         }
 
         for (var i = 0; i < e.features.length; i++) {
             var feature = e.features[i];
-            
+
+            var country = countries[feature.data.properties.iso2];
             // Skip countries not found in countriesJson
-            if (!countries[ feature.data.properties.iso2 ]) {
+            if (!country) {
                 // Still plot the country, but it won't be interactive
-                $(feature.element).attr("style", "fill: #ccc;");
+                $(feature.element).attr("style", "fill: transparent;");
                 continue;
             }
 
-            var country = countries[ feature.data.properties.iso2 ];
+
+            // colour countries based on number of mentions in juicer
+            var weight = occurrences(country.name);
+
+            // Draw the SVG for the country
+            $(feature.element)
+                .attr("style", "fill: red; opacity: " + weight / 15000 + ";")
+                .attr("class", "interactive")
+                .attr("data-country-name", country.name);
             var tileStyle = "fill: transparent;";
-            
-            // Check for warnings
-            if (country.warnings) {
-                // Check for warnings in 'high'
-                if (country.warnings.high) {
-                    if (country.warnings.high.lgbtDeathPenalty)
-                        tileStyle = "fill: maroon;";
-             
-                    if (country.warnings.high.lgbtImprisonment)
-                        tileStyle = "fill: orange;";
-                }
-                // Check for warnings in 'medium'
-                if (country.warnings.medium)
-                    if (country.warnings.medium.lgbtPersecution)
-                        tileStyle = "fill: gold;";
-            }
 
             // Show/hide country name on mouseover
             $(feature.element).on('mouseover', function() {
-                $('#country-name').html( $(this).data('countryName') );
+                $('#country-name').html($(this).data('countryName'));
             });
             $(feature.element).on('mouseout', function() {
                 $('#country-name').html('');
             });
-            
+
             // Link to more information if the country is clicked
             $(feature.element).on('click touch', function() {
-                window.location = "http://api.tinata.co.uk/countries/"+encodeURIComponent( $(this).data('countryName').replace(" ", "_") );
+                $('*').removeClass('highlight');
+                $(this).addClass('highlight');
+                countryView($(this));
             });
-
-            // Draw the SVG for the country
-            $(feature.element)
-                .attr("style", tileStyle)
-                .attr("class", "interactive")
-                .attr("data-country-name", country.name);
         }
     });
+}
+
+function countryView(country) {
+    $('.sidebar').html(country.data('countryName'));
+    $('.sidebar').slideDown();
+}
+
+function occurrences(countryName) {
+
+    var n = storage.get(countryName);
+    if (n) {
+        return n;
+    }
+
+    var apikey = "0AxXaHTHrFXcoxvUPCn898lG3L4SpwTe";
+    var host = "http://data.bbc.co.uk/v1/bbcrd-newslabs";
+
+    var conceptUri = host + "/concepts/tagged?q=" + countryName + "&limit=10&apikey=" + apikey;
+
+    var resourceUri;
+    $.ajax({
+        async: false,
+        dataType: "json",
+        url: conceptUri,
+        success: function(data) {
+            resourceUri = data[3][0];
+        }
+    });
+
+    var occurrence = 0;
+    var occurrenceUri = host + "/concepts/co-occurrences?uri=" + resourceUri + "&limit=1&apikey=" + apikey;
+    $.ajax({
+        async: false,
+        dataType: "json",
+        url: occurrenceUri,
+        success: function(data) {
+            occurrence = data["co-occurrences"][0].occurrence;
+        }
+    });
+    storage.set(countryName, occurrences);
+    return occurrence;
 }
 </script>
