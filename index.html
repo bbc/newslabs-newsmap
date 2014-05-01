@@ -1,0 +1,94 @@
+<!-- The object on the page to insert the map into -->
+<div id="map" class="world-map">
+    <h3 style="position: absolute; top: 0; left: 20px;" id="country-name"></h3>
+</div>
+
+<!-- jQuery is used in the example to make JSON requests and for DOM manipulation -->
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<!-- Modernizr is required by Polymaps -->
+<script src="js/modernizr.min.js"></script>
+<!-- Polymaps is used to draw the maps -->
+<script src="js/polymaps.min.js"></script>
+
+<script>
+
+// Initalise PolyMaps
+var po = org.polymaps;
+
+// Add map to the div with the id "map"
+var map = po.map()
+    .container(document.getElementById("map").appendChild(po.svg("svg")))
+    .center({lat: 30, lon: 0})
+    .zoom(2.1);
+
+// Fetch the JSON that powers the SVG overlay
+map.add(po.geoJson()
+    .url("js/world-polymap.json")
+    .tile(false)
+    .zoom(3)
+    .on("load", mapLoaded));
+
+function mapLoaded(e) {
+    // Get data for all countries from Tinatapi (using jQuery to make the Ajax request)
+    $.getJSON( "http://api.tinata.co.uk/countries.json", function(countriesJson) {
+
+        $('#map').css({visibility: 'visible'});
+
+        // Convert list of countries to be indexed by 2 character ISO code
+        // for efficient lookup e.g. countries.US.name = "United States"
+        var countries = {};
+        for (i in countriesJson) {
+            countries[ countriesJson[i].iso2 ] = countriesJson[i];
+        }
+
+        for (var i = 0; i < e.features.length; i++) {
+            var feature = e.features[i];
+            
+            // Skip countries not found in countriesJson
+            if (!countries[ feature.data.properties.iso2 ]) {
+                // Still plot the country, but it won't be interactive
+                $(feature.element).attr("style", "fill: #ccc;");
+                continue;
+            }
+
+            var country = countries[ feature.data.properties.iso2 ];
+            var tileStyle = "fill: #ccc;";
+            
+            // Check for warnings
+            if (country.warnings) {
+                // Check for warnings in 'high'
+                if (country.warnings.high) {
+                    if (country.warnings.high.lgbtDeathPenalty)
+                        tileStyle = "fill: maroon;";
+             
+                    if (country.warnings.high.lgbtImprisonment)
+                        tileStyle = "fill: orange;";
+                }
+                // Check for warnings in 'medium'
+                if (country.warnings.medium)
+                    if (country.warnings.medium.lgbtPersecution)
+                        tileStyle = "fill: gold;";
+            }
+
+            // Show/hide country name on mouseover
+            $(feature.element).on('mouseover', function() {
+                $('#country-name').html( $(this).data('countryName') );
+            });
+            $(feature.element).on('mouseout', function() {
+                $('#country-name').html('');
+            });
+            
+            // Link to more information if the country is clicked
+            $(feature.element).on('click touch', function() {
+                window.location = "http://api.tinata.co.uk/countries/"+encodeURIComponent( $(this).data('countryName').replace(" ", "_") );
+            });
+
+            // Draw the SVG for the country
+            $(feature.element)
+                .attr("style", tileStyle)
+                .attr("class", "interactive")
+                .attr("data-country-name", country.name);
+        }
+    });
+}
+</script>
