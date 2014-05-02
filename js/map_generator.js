@@ -87,6 +87,7 @@ function countryView(country) {
     $('.sidebar-title').html(countryName);
     $('ul.cwlist').html('');
     $('ul.peoplelist').html('');
+    $('.marquee').html('');
     $('.sidebar .loading').fadeIn();
     $('.sidebar').slideDown();
     var resourceUri = getConceptUri(countryName);
@@ -280,6 +281,8 @@ function renderCreativeWorks(data) {
         //     },
         // });
         ul.append(li);
+
+        $('.marquee').append("<p>" + title + "</p>");
         ix++;
     }
 }

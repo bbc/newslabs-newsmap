@@ -21,7 +21,7 @@ svg.map {
 }
 .sidebar {
     position: absolute;
-    top: 0;
+    top: 40px;
     right: 0;
     height: 100%;
     width: 300px;
@@ -87,4 +87,31 @@ a.concept-link {
 .concept-information {
     margin-bottom: 24px;
     color: black;
+}
+.marquee {
+    height: 40px;
+    font-size: 18px;
+    line-height: 22px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin-right: 300px;
+    background: rgba(150, 0, 0, 0.75);
+    padding: 8px;
+    color: #fff;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-marquee: up 50px infinite scroll 2500;
+    overflow-x: -webkit-marquee;
+}
+.marquee p {
+    height: 40px;
+    overflow: hidden;
+    padding: 0;
+    padding-top: 10px;
+    margin: 0;
+    float: left;
+    clear: both;
 }
