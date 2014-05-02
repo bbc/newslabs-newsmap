@@ -77,6 +77,7 @@ function countryView(country) {
     var countryName = country.data('countryName');
     $('.sidebar-title').html(countryName);
     $('ul.cwlist').html('');
+    $('.sidebar .loading').fadeIn();
     $('.sidebar').slideDown();
     getCreativeWorks(countryName)
 }
@@ -93,6 +94,7 @@ function getCreativeWorks(countryName) {
 
 function renderCreativeWorks(data) {
     console.log(data);
+    $('.sidebar .loading').hide();
     var ul = $('ul.cwlist');
     $.each(data['@graph'], function(ix, item) {
         var li = $('<li>').attr('id', ix)
