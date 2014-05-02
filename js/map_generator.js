@@ -88,12 +88,23 @@ function countryView(country) {
     $('ul.cwlist').html('');
     $('.marquee').html('').show();
     $('ul.peoplelist').html('');
+    $('ul.storylinelist').html('');
     $('.sidebar .loading').fadeIn();
     $('.sidebar').slideDown();
     var resourceUri = getConceptUri(countryName);
     getCreativeWorks(resourceUri);
     getPeople(resourceUri);
-    // getStorylines(resourceUri);
+    getStorylines(resourceUri);
+}
+
+function getStorylines(resourceUri) {
+    if (resourceUri && resourceUri != '') {
+        // {{host}}/things?tag=http://dbpedia.org/resource/Scotland&class=http://purl.org/ontology/storyline/Storyline&limit=10&after=2014-04-01&apikey={{apikey}}
+        var uri = host + "/things?tag=" + resourceUri + "&class=http://purl.org/ontology/storyline/Storyline&limit=5&offset=0&apikey=" + apikey;
+        $.getJSON(uri).done(function(data) {
+            renderStorylines(data);
+        });
+    }
 }
 
 function getCreativeWorks(resourceUri) {
@@ -105,6 +116,32 @@ function getCreativeWorks(resourceUri) {
     }
 }
 
+function renderStorylines(data) {
+    $('.sidebar .loading').hide();
+    var ul = $('ul.storylinelist');
+    $.each(data, function(ix, item) {
+        var li = $('<li>').attr('id', "storyline" + ix);
+        var url = item.uri;
+        var title = item.title;
+        li.append($('<a>').attr('class', "storylinelink").attr('href', url).text(title));
+        // li.popover({
+        //     title: label,
+        //     placement: 'left',
+        //     html: true,
+        //     trigger: "hover",
+        //     content: function() {
+        //         var id = page + ix;
+        //         var pop = $('<div>');
+        //         var container = $('<div>').attr('class', 'tags').attr('id', id);
+        //         container.html('TAGS..')
+        //         pop.append(container);
+        //         return pop.html();
+        //     },
+        // });
+        ul.append(li);
+    });
+}
+
 function getPeople(resourceUri) {
     var cooccurrenceUri = host + "/concepts/co-occurrences?type=http://dbpedia.org/ontology/Person&uri=" + resourceUri + "&limit=15&apikey=" + apikey;
     $.getJSON(cooccurrenceUri).done(function(data) {
@@ -113,7 +150,6 @@ function getPeople(resourceUri) {
 }
 
 function renderPeople(data) {
-    console.log(data);
     var ul = $('ul.peoplelist');
     $.each(data['co-occurrences'], function(ix, item) {
         var li = $('<li>').attr('id', ix);
