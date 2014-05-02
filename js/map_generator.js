@@ -93,11 +93,16 @@ function getCreativeWorks(countryName) {
 }
 
 function renderCreativeWorks(data) {
-    console.log(data);
     $('.sidebar .loading').hide();
     var ul = $('ul.cwlist');
+    var dedupedArticles = {};
     $.each(data['@graph'], function(ix, item) {
-        var li = $('<li>').attr('id', ix)
+        dedupedArticles[item.title] = item;
+    });
+    var ix = 0;
+    for (var article in dedupedArticles) {
+        var item = dedupedArticles[article];
+        var li = $('<li>').attr('id', "article"+ix);
         var url = item.primaryContentOf;
         var title = item.title;
         var thumbnail = item.thumbnail;
@@ -116,9 +121,9 @@ function renderCreativeWorks(data) {
         //         return pop.html();
         //     },
         // });
-        console.log(title);
         ul.append(li);
-    });
+        ix++;
+    }
 }
 
 function prefix(s, key) {
