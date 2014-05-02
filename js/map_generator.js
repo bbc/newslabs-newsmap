@@ -87,6 +87,7 @@ function countryView(country) {
     $('.sidebar-title').html(countryName);
     $('ul.cwlist').html('');
     $('ul.peoplelist').html('');
+    $('.sidebar .loading').fadeIn();
     $('.sidebar').slideDown();
     var resourceUri = getConceptUri(countryName);
     getCreativeWorks(resourceUri);
@@ -249,9 +250,17 @@ function renderConcept(concept, selector, pop) {
 
 
 function renderCreativeWorks(data) {
+    $('.sidebar .loading').hide();
     var ul = $('ul.cwlist');
+    var dedupedArticles = {};
     $.each(data['@graph'], function(ix, item) {
         var li = $('<li>').attr('id', ix);
+        dedupedArticles[$.trim(item.title)] = item;
+    });
+    var ix = 0;
+    for (var article in dedupedArticles) {
+        var item = dedupedArticles[article];
+        var li = $('<li>').attr('id', "article" + ix);
         var url = item.primaryContentOf;
         var title = item.title;
         var thumbnail = item.thumbnail;
@@ -271,7 +280,8 @@ function renderCreativeWorks(data) {
         //     },
         // });
         ul.append(li);
-    });
+        ix++;
+    }
 }
 
 function prefix(s, key) {

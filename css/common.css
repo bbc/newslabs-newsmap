@@ -11,7 +11,7 @@ svg.map {
     color: #fff;
     text-shadow: 0 0 10px #000;
     position: absolute;
-    bottom: -20px;
+    bottom: -10px;
     left: 0;
     width: 100%;
     text-align: center;
@@ -29,9 +29,18 @@ svg.map {
     padding: 10px;
     color: #fff;
     display: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
-.sidebar h3 {
+.sidebar h2 {
     margin-top: 0;
+}
+.sidebar .loading {
+    display: none;
+}
+.sidebar .loading img {
+    width: 100%;
 }
 .sidebar a {
     color: #fff !important;
