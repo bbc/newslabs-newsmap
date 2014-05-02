@@ -2,10 +2,11 @@
 
 <!-- The object on the page to insert the map into -->
 <div id="map" class="world-map">
-    <h3 id="country-name"></h3>
+    <h2 id="country-name"></h2>
 </div>
 
 <div id="sidebar" class="sidebar">
+    <h3 class="sidebar-title"></h3>
     <ul class="cwlist">
     </ul>
 </div>
@@ -69,14 +70,15 @@ function mapLoaded(e) {
 
             // Draw the SVG for the country
             $(feature.element)
-                .attr("style", "fill: red; opacity: " + weight / 20000 + ";")
+                .attr("style", "fill: red; opacity: " + weight / 12500 + ";")
                 .attr("class", "interactive")
-                .attr("data-country-name", feature.data.properties.name);
+                .attr("data-country-name", feature.data.properties.name)
+                .attr("data-country-number", weight);
             var tileStyle = "fill: transparent;";
 
             // Show/hide country name on mouseover
             $(feature.element).on('mouseover', function() {
-                $('#country-name').html($(this).data('countryName'));
+                $('#country-name').html($(this).data('countryName') + ' (' + $(this).data('countryNumber') + ')');
             });
             $(feature.element).on('mouseout', function() {
                 $('#country-name').html('');
@@ -94,7 +96,8 @@ function mapLoaded(e) {
 
 function countryView(country) {
     var countryName = country.data('countryName');
-    $('.sidebar').html(countryName);
+    $('.sidebar-title').html(countryName);
+    $('ul.cwlist').html('');
     $('.sidebar').slideDown();
     getCreativeWorks(countryName)
 }
@@ -102,7 +105,7 @@ function countryView(country) {
 function getCreativeWorks(countryName) {
     var resourceUri = getConceptUri(countryName);
     if (resourceUri && resourceUri != '') {
-        var uri = host + "/creative-works?tag=" + resourceUri + " &limit=5&offset=0&apikey=" + apikey;
+        var uri = host + "/creative-works?tag=" + resourceUri + " &limit=15&offset=0&apikey=" + apikey;
         $.getJSON(uri).done(function(data) {
             renderCreativeWorks(data);
         });
