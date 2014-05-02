@@ -77,6 +77,7 @@ function countryView(country) {
     var countryName = country.data('countryName');
     $('.sidebar-title').html(countryName);
     $('ul.cwlist').html('');
+    $('.marquee').html('');
     $('.sidebar .loading').fadeIn();
     $('.sidebar').slideDown();
     getCreativeWorks(countryName)
@@ -122,6 +123,8 @@ function renderCreativeWorks(data) {
         //     },
         // });
         ul.append(li);
+        
+        $('.marquee').append("<p>"+title+"</p>");
         ix++;
     }
 }
