@@ -143,7 +143,7 @@ function getConcept(concept, selector, pop, async) {
         host: host,
         apipath: '/concepts'
     };
-    var endpoint = defaults.host + defaults.apipath + '?uri=' + concept + "&apikey=" + apikey;
+    var endpoint = defaults.host + defaults.apipath + '?uri=' + encodeURIComponent(concept) + "&apikey=" + apikey;
     var conceptObj = {};
     $.ajax({
         url: endpoint,
