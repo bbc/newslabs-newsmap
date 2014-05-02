@@ -3,17 +3,15 @@ body {
     padding: 0;
     font-family: sans-serif;
 }
-
 svg.map {
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 }
-
 #country-name {
     color: #fff;
     text-shadow: 0 0 10px #000;
     position: absolute;
-    bottom: -10px;
+    bottom: 10px;
     left: 0;
     width: 100%;
     text-align: center;
@@ -21,14 +19,13 @@ svg.map {
     line-height: 42px;
     padding: 0;
 }
-
 .sidebar {
     position: absolute;
     top: 40px;
     right: 0;
     height: 100%;
     width: 300px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     padding: 10px;
     color: #fff;
     display: none;
@@ -36,47 +33,62 @@ svg.map {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-
 .sidebar h2 {
     margin-top: 0;
 }
-
 .sidebar .loading {
     display: none;
 }
-
 .sidebar .loading img {
     width: 100%;
 }
-
 .sidebar a {
     color: #fff !important;
 }
-
-.sidebar ul.cwlist {
+.sidebar ul.list {
     padding-left: 0;
+    margin-left: 0;
 }
-
-.sidebar ul.cwlist li {
+.sidebar ul.list li {
     list-style: none;
     margin-bottom: 10px;
 }
-
-.interactive,
-*[data-country-name] {
+.interactive, *[data-country-name] {
     fill: red;
 }
-
-.interactive,
-*[data-country-name]:hover {
+.interactive, *[data-country-name]:hover {
     cursor: pointer !important;
 }
-
 .highlight {
     fill: gold !important;
     opacity: 1 !important;
 }
-
+a.concept-link {
+    margin-left: 5px;
+    float: right;
+    color: #888888;
+    font-size:70%;
+    margin-left: -2px;
+    margin-top: 5px;
+}
+.container {
+    max-width: 960px;
+}
+.concept-thumb {
+}
+.concept-img {
+    margin-right: 16px;
+    max-width: 350px;
+    max-height: 350px;
+    border: 1px solid #ccc;
+}
+.concept-img--error {
+    display: none;
+}
+.concept-information {
+    margin-bottom: 24px;
+    color: black;
+}
 .marquee {
     height: 40px;
     font-size: 18px;
@@ -99,7 +111,6 @@ svg.map {
     overflow-x: -webkit-marquee;
     display: none;
 }
-
 .marquee p {
     height: 40px;
     overflow: hidden;
@@ -108,7 +119,6 @@ svg.map {
     float: left;
     clear: both;
 }
-
 @media screen and (-webkit-min-device-pixel-ratio:0) {
     .marquee p {
         padding-top: 10px;
