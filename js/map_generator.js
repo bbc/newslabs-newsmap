@@ -3,6 +3,15 @@ var po = org.polymaps;
 var storage = $.localStorage;
 var apikey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
 var host = "http://data.bbc.co.uk/v1/bbcrd-newslabs";
+var rdfTypes = {
+    person: 'http://dbpedia.org/ontology/Person',
+    place: 'http://dbpedia.org/ontology/Place',
+    organisation: 'http://dbpedia.org/ontology/Organisation',
+    country: 'http://dbpedia.org/ontology/Country',
+    storyline: 'http://purl.org/ontology/storyline/Storyline',
+    theme: "http://www.bbc.co.uk/ontologies/news/Theme",
+    event: "http://www.bbc.co.uk/ontologies/news/Event"
+};
 
 // Add map to the div with the id "map"
 var map = po.map()
@@ -77,12 +86,15 @@ function countryView(country) {
     var countryName = country.data('countryName');
     $('.sidebar-title').html(countryName);
     $('ul.cwlist').html('');
+    $('ul.peoplelist').html('');
     $('.sidebar').slideDown();
-    getCreativeWorks(countryName)
+    var resourceUri = getConceptUri(countryName);
+    getCreativeWorks(resourceUri);
+    getPeople(resourceUri);
+    // getStorylines(resourceUri);
 }
 
-function getCreativeWorks(countryName) {
-    var resourceUri = getConceptUri(countryName);
+function getCreativeWorks(resourceUri) {
     if (resourceUri && resourceUri != '') {
         var uri = host + "/creative-works?tag=" + resourceUri + " &limit=15&offset=0&apikey=" + apikey;
         $.getJSON(uri).done(function(data) {
@@ -91,11 +103,155 @@ function getCreativeWorks(countryName) {
     }
 }
 
-function renderCreativeWorks(data) {
+function getPeople(resourceUri) {
+    var cooccurrenceUri = host + "/concepts/co-occurrences?type=http://dbpedia.org/ontology/Person&uri=" + resourceUri + "&limit=15&apikey=" + apikey;
+    $.getJSON(cooccurrenceUri).done(function(data) {
+        renderPeople(data);
+    });
+}
+
+function renderPeople(data) {
     console.log(data);
+    var ul = $('ul.peoplelist');
+    $.each(data['co-occurrences'], function(ix, item) {
+        var li = $('<li>').attr('id', ix);
+        var title = item.label;
+        var url = item.thing;
+        li.append($('<a>').attr('class', "personlink").attr('href', url).text(title));
+        li.popover({
+            title: title,
+            placement: 'left',
+            html: true,
+            trigger: "hover",
+            content: function() {
+                var id = 'p' + ix;
+                var pop = $('<div>');
+                var container = $('<div>').attr('class', 'concept-information').attr('id', id);
+                getConcept(url, container, true, false);
+                pop.append(container);
+                return pop.html();
+            },
+        });
+        ul.append(li);
+    });
+}
+
+function getConcept(concept, selector, pop, async) {
+    var defaults = {
+        host: host,
+        apipath: '/concepts'
+    };
+    var endpoint = defaults.host + defaults.apipath + '?uri=' + concept + "&apikey=" + apikey;
+    var conceptObj = {};
+    $.ajax({
+        url: endpoint,
+        async: async,
+        dataType: 'json',
+        success: function(data) {
+            conceptObj = uniformConcept(data);
+            if (selector) {
+                renderConcept(conceptObj, selector, pop);
+            }
+        }
+    });
+    return conceptObj;
+}
+
+function uniformConcept(conceptObj) {
+    if (conceptObj.type == rdfTypes.storyline) {
+        var defaults = {
+            host: juicerConfig.triplestore.host,
+            apipath: '/storylines'
+        };
+        var endpoint = defaults.host + defaults.apipath + '?uri=' + encodeURIComponent(conceptObj.uri) + "&apikey=" + apikey;
+        $.ajax({
+            url: endpoint,
+            async: false,
+            dataType: 'json',
+            success: function(data) {
+                conceptObj.abstract = data["@graph"][0]["synopsis"];
+                var topic = data["@graph"][0]["topic"];
+                if (topic) {
+                    if (topic["@set"]) {
+                        conceptObj.topics = $.map(topic["@set"], function(val, i) {
+                            return val["@id"]
+                        });
+                    } else {
+                        conceptObj.topics = [topic["@id"]];
+                    }
+                    conceptObj.topics = $.map(conceptObj.topics, function(val, i) {
+                        return getConcept(val, null, null, false)
+                    });
+                }
+            }
+        });
+    }
+    return conceptObj;
+}
+
+function renderConcept(concept, selector, pop) {
+    if (concept.thumbnail) {
+        var imgEl = $('<img>').attr('src', concept.thumbnail).attr('class', 'concept-img');
+        imgEl.attr('onerror', 'conceptImageError(this)');
+        var conceptThumb = $('<div>').attr('class', "concept-thumb").append(imgEl);
+        conceptThumb.appendTo(selector);
+    }
+    var conceptAbstract = $('<div>').attr('class', "concept-abstract").text(concept.abstract);
+    conceptAbstract.appendTo(selector);
+    if (!pop) {
+        // link to concept's wikipedia entry only if dbpedia resource
+        var slug = (concept.uri.match(/dbpedia.org\/resource\/([^&]+)/) || [, null])[1];
+        var url = null;
+        if (slug) url = 'http://en.wikipedia.org/wiki/' + slug;
+        if (url) {
+            var conceptLink = $('<div>').add($('<a>').attr('href', url).text(url));
+            conceptLink.appendTo(selector);
+        }
+        // link to alternative view for country/place
+        if (urlparts.page.match(/(place|country)/) && conceptIsA(concept.label, "http://dbpedia.org/ontology/Country")) {
+            var altView = urlparts.page == 'place' ? 'country' : 'place';
+            var altLink = $('<div>').add($('<a>').attr('href', conceptUrl(altView, slug)).text('View as ' + altView));
+            altLink.appendTo(selector);
+        }
+        // link to google maps for places
+        if (concept.lat && concept.long) {
+            var mapsUrl = 'https://maps.google.co.uk/?q=' + concept.lat + ',' + concept.long + '&z=15';
+            var mapsLink = $('<div>').add($('<a>').attr('href', mapsUrl).text('View in google maps'));
+            mapsLink.appendTo(selector);
+        }
+    }
+    if (concept.topics) {
+        var topics = $('<div>').attr('class', "topics");
+        if (!pop) {
+            $('<h2>').attr('class', "side-title").text('Related').appendTo(topics);
+        }
+
+        renderConcepts(concept.topics, topics);
+        topics.appendTo(selector);
+
+    }
+
+    if (!$('.mentioned')[0]) {
+        var m = $('<div>').attr('class', 'row-fluid mentioned')
+            .attr('style', 'width: 93%')
+            .append('<h2 style="font-weight: 300; font-size: 1.8em;">Mentioned </h2>')
+            .appendTo('#concept-information');
+
+        var s = $('<div style="margin-left: 0;">');
+        s.attr('class', "storylines storyline-co span6 clearfix").appendTo(m);
+        $('<h2>').attr('class', "side-title").text('Storylines').appendTo(s);
+
+        var e = $('<div>');
+        e.attr('class', "events event-co span6").appendTo(m);
+        $('<h2>').attr('class', "side-title").text('Events').appendTo(e);
+    }
+}
+
+
+function renderCreativeWorks(data) {
     var ul = $('ul.cwlist');
     $.each(data['@graph'], function(ix, item) {
-        var li = $('<li>').attr('id', ix)
+        var li = $('<li>').attr('id', ix);
         var url = item.primaryContentOf;
         var title = item.title;
         var thumbnail = item.thumbnail;
@@ -114,7 +270,6 @@ function renderCreativeWorks(data) {
         //         return pop.html();
         //     },
         // });
-        console.log(title);
         ul.append(li);
     });
 }
@@ -146,6 +301,8 @@ function getConceptUri(countryName) {
     return resourceUri;
 }
 
+
+
 function occurrences(countryName) {
 
     var occurrence = storage.get(prefix('occurrence', countryName));
@@ -172,4 +329,11 @@ function occurrences(countryName) {
     }
     storage.set(prefix('occurrence', countryName), occurrence);
     return occurrence;
+}
+
+function conceptImageError(img) {
+    img.src = "img/placeholder.jpg";
+    img.className = "concept-img concept-img--error";
+    img.onerror = "";
+    return true;
 }

@@ -36,10 +36,10 @@ svg.map {
 .sidebar a {
     color: #fff !important;
 }
-.sidebar ul.cwlist {
+.sidebar ul.list {
     padding-left: 0;
 }
-.sidebar ul.cwlist li {
+.sidebar ul.list li {
     list-style: none;
     margin-bottom: 10px;
 }
@@ -52,4 +52,30 @@ svg.map {
 .highlight {
     fill: gold !important;
     opacity: 1 !important;
+}
+a.concept-link {
+    margin-left: 5px;
+    float: right;
+    color: #888888;
+    font-size:70%;
+    margin-left: -2px;
+    margin-top: 5px;
+}
+.container {
+    max-width: 960px;
+}
+.concept-thumb {
+}
+.concept-img {
+    margin-right: 16px;
+    max-width: 350px;
+    max-height: 350px;
+    border: 1px solid #ccc;
+}
+.concept-img--error {
+    display: none;
+}
+.concept-information {
+    margin-bottom: 24px;
+    color: black;
 }
