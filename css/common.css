@@ -87,21 +87,30 @@ svg.map {
     width: 100%;
     margin-right: 300px;
     background: rgba(150,0,0,0.75);
-    padding: 8px;
+    padding: 10px;
     color: #fff;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    overflow: hidden;
     -webkit-marquee: up 50px infinite scroll 2500;
+    -mozilla-marquee: up 50px infinite scroll 2500;
+    marquee: up 50px infinite scroll 2500;
     overflow-x: -webkit-marquee;
+    display: none;
 }
 
 .marquee p {
     height: 40px;
     overflow: hidden;
     padding: 0;
-    padding-top: 10px;
     margin: 0;
     float: left;
     clear: both;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .marquee p {
+        padding-top: 10px;
+    }
 }

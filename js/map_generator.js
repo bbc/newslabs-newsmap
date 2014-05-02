@@ -77,7 +77,7 @@ function countryView(country) {
     var countryName = country.data('countryName');
     $('.sidebar-title').html(countryName);
     $('ul.cwlist').html('');
-    $('.marquee').html('');
+    $('.marquee').html('').show();
     $('.sidebar .loading').fadeIn();
     $('.sidebar').slideDown();
     getCreativeWorks(countryName)
