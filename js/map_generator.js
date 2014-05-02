@@ -97,7 +97,7 @@ function renderCreativeWorks(data) {
     var ul = $('ul.cwlist');
     var dedupedArticles = {};
     $.each(data['@graph'], function(ix, item) {
-        dedupedArticles[item.title] = item;
+        dedupedArticles[$.trim(item.title)] = item;
     });
     var ix = 0;
     for (var article in dedupedArticles) {
