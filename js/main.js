@@ -38,8 +38,29 @@ map.add(po.geoJson()
 map.add(po.compass()
     .pan("none"));
 
+var countries = {};
 function mapLoaded(e) {
     $.getJSON("js/countries-data.json", function(countriesJson) {
+        
+        // Randomly select a country
+        countries = countriesJson;
+        setInterval(function() {
+            var keepSearching = true;
+            var randomCountryName;
+            while (keepSearching === true) {
+                var min = 0,
+                    max = Object.keys(countries).length,
+                    randomNumber = Math.floor(Math.random() * (max - min) + min);
+        
+                randomCountryName = Object.keys(countries)[randomNumber];
+                if (countries[randomCountryName] >=5 )
+                    keepSearching = false;
+            };
+            
+            $('*[data-country-name="'+randomCountryName+'"]').click();
+            
+        }, 10000);
+        
         $('#map').css({
             visibility: 'visible'
         });
@@ -66,7 +87,8 @@ function mapLoaded(e) {
 
             // Show/hide country name on mouseover
             $(feature.element).on('mouseover', function() {
-                $('#country-name').html($(this).data('countryName') + ' (' + $(this).data('countryNumber') + ')');
+                //$('#country-name').html($(this).data('countryName') + ' (' + $(this).data('countryNumber') + ')');
+                $('#country-name').html( $(this).data('countryName') );
             });
             $(feature.element).on('mouseout', function() {
                 $('#country-name').html('');
@@ -74,8 +96,13 @@ function mapLoaded(e) {
 
             // Link to more information if the country is clicked
             $(feature.element).on('click touch', function() {
+                $('*[data-old-style]').each(function() {
+                    $(this).attr('style', $(this).attr('data-old-style') );
+                });
                 $('*').removeClass('highlight');
                 $(this).addClass('highlight');
+                $(this).attr('data-old-style', $(this).attr('style'));
+                $(this).attr('style', "fill: gold;");
                 countryView($(this));
             });
         }
@@ -117,7 +144,6 @@ function getCreativeWorks(resourceUri) {
 }
 
 function renderStorylines(data) {
-    $('.sidebar .loading').hide();
     var ul = $('ul.storylinelist');
     $.each(data, function(ix, item) {
         var li = $('<li>').attr('id', "storyline" + ix);
@@ -155,7 +181,8 @@ function renderPeople(data) {
         var li = $('<li>').attr('id', ix);
         var title = item.label;
         var url = item.thing;
-        li.append($('<a>').attr('class', "personlink").attr('href', url).text(title));
+        var p = li.append('<p>').attr("class", "lead");
+        p.append($('<a>').attr('class', "personlink").attr('href', url).text(title));
         li.popover({
             title: title,
             placement: 'left',
@@ -295,13 +322,18 @@ function renderCreativeWorks(data) {
         dedupedArticles[$.trim(item.title)] = item;
     });
     var ix = 0;
-    for (var article in dedupedArticles) {
+    for (var article in dedupedArticles) {  
+        
+        if (ix >= 5)      
+            return;
+            
         var item = dedupedArticles[article];
         var li = $('<li>').attr('id', "article" + ix);
         var url = item.primaryContentOf;
         var title = item.title;
         var thumbnail = item.thumbnail;
-        li.append($('<a>').attr('class', "cwlink").attr('href', url).text(title));
+        var p = li.append('<p>').attr("class", "lead");
+        p.append($('<a>').attr('class', "cwlink").attr('href', url).text(title));
         // li.popover({
         //     title: label,
         //     placement: 'left',
