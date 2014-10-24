@@ -11,8 +11,13 @@ img.logo {
     width: 150px;
 }
 
-.lead {
+li.lead {
     font-weight: 500 !important;
+    font-size: 18px !important;
+    line-height: 20px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    padding-top: 10px !important;
 }
 
 svg.map {
@@ -36,7 +41,7 @@ svg.map {
     top: 40px;
     right: 0;
     height: 100%;
-    width: 30%;
+    width: 40%;
     background: rgba(0, 0, 0, 0.7);
     padding: 10px;
     color: #fff;
@@ -53,7 +58,6 @@ svg.map {
     font-weight: 600;
     border-bottom: 3px solid #fff;
 }
-
 
 .sidebar .loading {
     display: none;

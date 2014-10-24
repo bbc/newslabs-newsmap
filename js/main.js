@@ -59,7 +59,7 @@ function mapLoaded(e) {
             
             $('*[data-country-name="'+randomCountryName+'"]').click();
             
-        }, 10000);
+        }, 20000);
         
         $('#map').css({
             visibility: 'visible'
