@@ -1,0 +1,78 @@
+<html>
+<link href="css/bootstrap.css" rel="stylesheet" media="screen" />
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script>
+    $.getJSON("js/countries-data.json", function(countries) {        
+        var selectedCountries = [];
+        var randomCountryName;
+        while (selectedCountries.length < 4) {
+            var min = 0,
+                max = Object.keys(countries).length,
+                randomNumber = Math.floor(Math.random() * (max - min) + min);
+    
+            randomCountryName = Object.keys(countries)[randomNumber];
+            if (countries[randomCountryName] > 0 ) {
+                selectedCountries.push({ name: randomCountryName, count: countries[randomCountryName] });
+            }
+        };
+        $(".count").hide();
+        for (var i = 0; i < selectedCountries.length; i++) {
+            $("#option"+(i+1)+" .name").html(selectedCountries[i].name);
+            $("#option"+(i+1)+" .count").html(selectedCountries[i].count);
+        }
+        
+        //$.on("click touch", "#reveal", function() {
+        $("#reveal").click(function() {
+            $(".count").show();
+            $("#reveal").hide();
+        });
+    
+    });
+</script>
+<style>
+body {
+    background: black;
+    color: white;
+    margin: 40px;
+}
+.well {
+    border: none;
+    height: 30%;
+    text-align: center;
+}
+
+.well h2 { 
+    margin-top: 20%;
+    margin-bottom: 0px;
+}
+
+.well h2 small { 
+    color: rgba(255,255,255,0.75);
+    font-size: 18pt;
+}
+
+</style>
+<body>
+<div class="container">
+    <h1>Which country have we seen most in the news?</h1>
+    <br/>
+    <div class="row">
+        <div class="span6">
+            <div class="well" style="background: red"><h2 id="option1"><div class="name"></div><br/><small class="count"></small></h2></div>
+        </div>
+        <div class="span6">
+            <div class="well" style="background: green"><h2 id="option2"><div class="name"></div><br/><small class="count"></small></h2></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span6">
+            <div class="well" style="background: blue"><h2 id="option3"><div class="name"></div><br/><small class="count"></small></h2></div>
+        </div>
+        <div class="span6">
+            <div class="well" style="background: orange"><h2 id="option4"><div class="name"></div><br/><small class="count"></small></h2></div>
+        </div>
+    </div>
+    <a id="reveal" class="btn btn-large btn-block btn-default">Reveal</a>
+</div>
+</body>
+</html>
