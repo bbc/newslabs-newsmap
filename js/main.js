@@ -178,11 +178,10 @@ function getPeople(resourceUri) {
 function renderPeople(data) {
     var ul = $('ul.peoplelist');
     $.each(data['co-occurrences'], function(ix, item) {
-        var li = $('<li>').attr('id', ix);
+        var li = $('<li>').attr('id', ix).attr('class', 'lead');
         var title = item.label;
         var url = item.thing;
-        var p = li.append('<p>').attr("class", "lead");
-        p.append($('<a>').attr('class', "personlink").attr('href', url).text(title));
+        li.append($('<a>').attr('class', "personlink").attr('href', url).text(title));
         li.popover({
             title: title,
             placement: 'left',
@@ -324,16 +323,15 @@ function renderCreativeWorks(data) {
     var ix = 0;
     for (var article in dedupedArticles) {  
         
-        if (ix >= 5)      
+        if (ix >= 10)      
             return;
             
         var item = dedupedArticles[article];
-        var li = $('<li>').attr('id', "article" + ix);
+        var li = $('<li>').attr('id', "article" + ix).attr('class', 'lead');
         var url = item.primaryContentOf;
         var title = item.title;
         var thumbnail = item.thumbnail;
-        var p = li.append('<p>').attr("class", "lead");
-        p.append($('<a>').attr('class', "cwlink").attr('href', url).text(title));
+        li.append($('<a>').attr('class', "cwlink").attr('href', url).text(title));
         // li.popover({
         //     title: label,
         //     placement: 'left',

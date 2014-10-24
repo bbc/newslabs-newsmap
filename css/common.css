@@ -11,6 +11,10 @@ img.logo {
     width: 150px;
 }
 
+.lead {
+    font-weight: 500 !important;
+}
+
 svg.map {
     width: 100%;
     height: 100%;
@@ -33,7 +37,7 @@ svg.map {
     right: 0;
     height: 100%;
     width: 30%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.7);
     padding: 10px;
     color: #fff;
     display: none;
