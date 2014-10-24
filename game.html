@@ -22,16 +22,16 @@
         }
         
         //$.on("click touch", "#reveal", function() {
-        $("#reveal").click(function() {
+        $(".well").click(function() {
             $(".count").show();
-            $("#reveal").hide();
+            $("#again").removeClass('hide');
         });
     
     });
 </script>
 <style>
 body {
-    background: black;
+    background: #333;
     color: white;
     margin: 40px;
 }
@@ -39,6 +39,10 @@ body {
     border: none;
     height: 30%;
     text-align: center;
+}
+
+.well:hover {
+    cursor: pointer;
 }
 
 .well h2 { 
@@ -58,21 +62,26 @@ body {
     <br/>
     <div class="row">
         <div class="span6">
-            <div class="well" style="background: red"><h2 id="option1"><div class="name"></div><br/><small class="count"></small></h2></div>
+            <div class="well" style="background: red"><h2 id="option1"><div class="name"></div><small class="count"></small></h2></div>
         </div>
         <div class="span6">
-            <div class="well" style="background: green"><h2 id="option2"><div class="name"></div><br/><small class="count"></small></h2></div>
+            <div class="well" style="background: green"><h2 id="option2"><div class="name"></div><small class="count"></small></h2></div>
         </div>
     </div>
     <div class="row">
         <div class="span6">
-            <div class="well" style="background: blue"><h2 id="option3"><div class="name"></div><br/><small class="count"></small></h2></div>
+            <div class="well" style="background: blue"><h2 id="option3"><div class="name"></div><small class="count"></small></h2></div>
         </div>
         <div class="span6">
-            <div class="well" style="background: orange"><h2 id="option4"><div class="name"></div><br/><small class="count"></small></h2></div>
+            <div class="well" style="background: orange"><h2 id="option4"><div class="name"></div><small class="count"></small></h2></div>
         </div>
     </div>
-    <a id="reveal" class="btn btn-large btn-block btn-default">Reveal</a>
+    <div class="row">
+        <div class="span12 text-center">
+            <a id="again" href="javascript:window.location = window.location" class="hide btn btn-default btn-large">Play again</a>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>
