@@ -1,418 +1,254 @@
-// Initalise PolyMaps
-var po = org.polymaps;
-var storage = $.localStorage;
-var apikey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
-var host = "http://data.bbc.co.uk/v1/bbcrd-newslabs";
-var rdfTypes = {
-    person: 'http://dbpedia.org/ontology/Person',
-    place: 'http://dbpedia.org/ontology/Place',
-    organisation: 'http://dbpedia.org/ontology/Organisation',
-    country: 'http://dbpedia.org/ontology/Country',
-    storyline: 'http://purl.org/ontology/storyline/Storyline',
-    theme: "http://www.bbc.co.uk/ontologies/news/Theme",
-    event: "http://www.bbc.co.uk/ontologies/news/Event"
-};
-
-// Add map to the div with the id "map"
-var map = po.map()
-    .container(document.getElementById("map").appendChild(po.svg("svg")))
-    .center({
-        lat: 30,
-        lon: 0
-    })
-    .add(po.interact())
-    .add(po.hash())
-    .zoom(3);
-
-map.add(po.image()
-    .url(po.url("http://{S}tile.cloudmade.com" + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
-            + "/999/256/{Z}/{X}/{Y}.png")
-        .hosts(["a.", "b.", "c.", ""])));
-
-// Fetch the JSON that powers the SVG overlay
-map.add(po.geoJson()
-    .url("http://api.tinata.co.uk/js/world-polymap.json")
-    .tile(false)
-    .on("load", mapLoaded));
-
-map.add(po.compass()
-    .pan("none"));
-
-var countries = {};
-function mapLoaded(e) {
-    $.getJSON("js/countries-data.json", function(countriesJson) {
+$(function() {
+    var zoomToCountry;
+    var invervalBetweenCycles = 15000;
+    
+    var degrees = 180 / Math.PI,
+        ratio = window.devicePixelRatio || 1,
+        width =  $("#map").width(),
+        height = $("#map").height(),
+        p = ratio;
         
-        // Randomly select a country
-        countries = countriesJson;
-        setInterval(function() {
-            var keepSearching = true;
-            var randomCountryName;
-            while (keepSearching === true) {
-                var min = 0,
-                    max = Object.keys(countries).length,
-                    randomNumber = Math.floor(Math.random() * (max - min) + min);
+    var projection = d3.geo.orthographic()
+        .rotate([0, -30])
+        .scale(height / 2 - 1)
+        .translate([width / 2, height / 2])
+        .clipExtent([[-p, -p], [width + p, height + p]])
+        .precision(.5);
+
+    var canvas = d3.select("#map").append("canvas")
+        .attr("width", width * ratio)
+        .attr("height", height * ratio)
+        .style("width", width + "px")
+        .style("height", height + "px");
+
+    var c = canvas.node().getContext("2d");
+
+    var path = d3.geo.path()
+        .projection(projection)
+        .context(roundRatioContext(c));
+
+    var northUp = d3.select("#north-up").on("change", function() { northUp = this.checked; }).property("checked");
+
+    queue()
+        .defer(d3.json, "data/world-110m.json")
+        .defer(d3.tsv, "data/world-country-names.tsv")
+        .await(ready);
         
-                randomCountryName = Object.keys(countries)[randomNumber];
-                if (countries[randomCountryName] >=5 )
-                    keepSearching = false;
-            };
+    function ready(error, world, names) {
+
+      var globe = {type: "Sphere"},
+          graticule = d3.geo.graticule()(),
+          land = topojson.feature(world, world.objects.land),
+          borders = topojson.mesh(world, world.objects.countries),
+          countries = d3.shuffle(topojson.feature(world, world.objects.countries).features),
+          i = -1,
+          i0 = i,
+          zoom = d3.geo.zoom()
+                  .projection(projection)
+                  .duration(function(S) { return 5000 * Math.sqrt(S); }) // assume ease="quad-in-out"
+                  .scaleExtent([height / 2 - 1, Infinity])
+                  .on("zoom", function() {
+                    projection.clipAngle(Math.asin(Math.min(1, .5 * Math.sqrt(width * width + height * height) / projection.scale())) * degrees);
+                    c.clearRect(0, 0, width * ratio, height * ratio);
+                    c.fillStyle = "#194677", c.beginPath(), path(globe), c.fill();
+                    c.strokeStyle = "#6B88F3", c.lineWidth = .25 * ratio, c.beginPath(), path(graticule), c.stroke();
+                    c.fillStyle = "#D1B76E", c.beginPath(), path(land), c.fill();
+                    c.fillStyle = "#D1B76E", c.beginPath(), path(land), c.fill();            
+                    c.fillStyle = "#f00", c.beginPath(), path(countries[i0]), c.fill();
+                    c.fillStyle = "#f00", c.beginPath(), path(countries[i]), c.fill();
+                    c.strokeStyle = "#9C864C", c.lineWidth = 1 * ratio, c.beginPath(), path(borders), c.stroke();
+                    c.strokeStyle = "#fff", c.lineWidth = 3 * ratio, c.beginPath(), path(globe), c.stroke();
+                  });
+//          .on("zoomend", zoomToCountryCallback);
+
+      canvas
+          .call(zoom)
+          .call(zoom.event);
+
+      function zoomIn() {
+          
+          var countryId = (i = ((i0 = i) + 1) % countries.length);
+          var countryName = countries[countryId].name;
+
+          $.getJSON("http://tinata.org/countries/"+encodeURIComponent(countryName)+".json")
+          .done(function(response) {
+              countryName = response.name;
+          })
+          .always(function() {
+      
+              var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
+              var juicerApiHost = "http://data.bbc.co.uk/bbcrd-juicer";
+              var url = juicerApiHost+"/articles.json?recent_first=yes&content_format[]=TextualFormat&text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
+      
+              // Whitelist of sources
+              url += "&product[]=NewsWeb";
+              url += "&product[]=TheGuardian";
+              url += "&product[]=TheMirror";
+              url += "&product[]=TheIndependent";
+              url += "&product[]=ExpressStar";
+              url += "&product[]=TheHuffingtonPost";
+              url += "&product[]=DailyRecord";
+              url += "&product[]=SkyNews";
+              url += "&product[]=STV";
+      
+              $.getJSON(url).done(function(response) {
+                  // Reset sidebar to be hidden, but redisplay it as animation ends
+                 $("#sidebar").fadeOut();
+                 $("#images").html('');
+              
+                 setTimeout(function() {
+                    //lookupLocation(countryName);
             
-            $('*[data-country-name="'+randomCountryName+'"]').click();
-            
-        }, 20000);
-        
-        $('#map').css({
-            visibility: 'visible'
-        });
+                     $("#sidebar .title").html(countryName);
 
-        // for efficient lookup e.g. countries.US.name = "United States"
-        for (var i = 0; i < e.features.length; i++) {
-            var feature = e.features[i];
-            var weight = countriesJson[feature.data.properties.name];
+                      $("#sidebar .headlines").html('');
+                                
+                      var images = [];
+                      response["articles"].forEach(function(article) {
+                          var source = article.source;
+                  
+                          if (source == "NewsWeb")
+                              source = "BBCNews";
+                      
+                          var html = '<li class="clearfix">';
+                          html += '<a href="'+article.url+'"><h4 style="margin-top: 0;">';
+                          html += '<i class="fa fa-li fa-fw fa-newspaper-o"></i> '+article.title+'<br/><small>'+source+'</small>';
+                          html += '</h4></a>';
+                          html += '</li>';
 
-            // Skip countries not found in countriesJson
-            if (!weight) {
-                // Still plot the country, but it won't be interactive
-                $(feature.element).attr("style", "fill: transparent;");
-                continue;
-            }
+                          if (article.image) {
+                              images.push({ src: article.image.src,
+                                            source: source,
+                                            url: article.url
+                                          });
+                          }
+                      
+                         $("#sidebar .headlines").append(html);
+                     });
+             
+                     images.forEach(function(image) {
+                                      
+                         var img = new Image();
+                         img.onload = function(e) {
+                             if (this.width >= 75 && this.height >= 75)
+                                 $("#images").append('<a href="'+image.url+'" border="0"><img class="pull-right animated bounceIn" src="'+image.src+'" /></a>');
+                        };
+                       img.src = image.src;
 
-            // Draw the SVG for the country
-            $(feature.element)
-                .attr("style", "fill: red; opacity: " + weight / 12500 + ";")
-                .attr("class", "interactive")
-                .attr("data-country-name", feature.data.properties.name)
-                .attr("data-country-number", weight);
-            var tileStyle = "fill: transparent;";
+                     });
+                    $("#sidebar").fadeIn();
 
-            // Show/hide country name on mouseover
-            $(feature.element).on('mouseover', function() {
-                //$('#country-name').html($(this).data('countryName') + ' (' + $(this).data('countryNumber') + ')');
-                $('#country-name').html( $(this).data('countryName') );
-            });
-            $(feature.element).on('mouseout', function() {
-                $('#country-name').html('');
-            });
+                    // Start the countdown to zoom to the next country AFTER the data has finished loading for the current one
+                    setTimeout(function() { zoomToCountry(); }, invervalBetweenCycles);
+                    
+                 }, 4000);
+      
+                  $("#banner .title").html("Headlines linked to "+countryName+" from the BBC News Juicer");
 
-            // Link to more information if the country is clicked
-            $(feature.element).on('click touch', function() {
-                $('*[data-old-style]').each(function() {
-                    $(this).attr('style', $(this).attr('data-old-style') );
+                  zoomBounds(projection, countries[countryId]);
+                  canvas.transition()
+                    .ease("quad-in-out")
+                    .duration(2000) // see https://github.com/mbostock/d3/pull/2045
+                    .call(zoom.projection(projection).event);
+
                 });
-                $('*').removeClass('highlight');
-                $(this).addClass('highlight');
-                $(this).attr('data-old-style', $(this).attr('style'));
-                $(this).attr('style', "fill: gold;");
-                countryView($(this));
-            });
-        }
-    });
-}
-
-function countryView(country) {
-    var countryName = country.data('countryName');
-    $('.sidebar-title').html(countryName);
-    $('ul.cwlist').html('');
-    $('.marquee').html('').show();
-    $('ul.peoplelist').html('');
-    $('ul.storylinelist').html('');
-    $('.sidebar .loading').fadeIn();
-    $('.sidebar').slideDown();
-    var resourceUri = getConceptUri(countryName);
-    getCreativeWorks(resourceUri);
-    getPeople(resourceUri);
-    getStorylines(resourceUri);
-}
-
-function getStorylines(resourceUri) {
-    if (resourceUri && resourceUri != '') {
-        // {{host}}/things?tag=http://dbpedia.org/resource/Scotland&class=http://purl.org/ontology/storyline/Storyline&limit=10&after=2014-04-01&apikey={{apikey}}
-        var uri = host + "/things?tag=" + resourceUri + "&class=http://purl.org/ontology/storyline/Storyline&limit=5&offset=0&apikey=" + apikey;
-        $.getJSON(uri).done(function(data) {
-            renderStorylines(data);
         });
-    }
-}
 
-function getCreativeWorks(resourceUri) {
-    if (resourceUri && resourceUri != '') {
-        var uri = host + "/creative-works?tag=" + resourceUri + " &limit=5&offset=0&apikey=" + apikey;
-        $.getJSON(uri).done(function(data) {
-            renderCreativeWorks(data);
-        });
-    }
-}
+      }
+      zoomToCountry = zoomIn;
 
-function renderStorylines(data) {
-    var ul = $('ul.storylinelist');
-    $.each(data, function(ix, item) {
-        var li = $('<li>').attr('id', "storyline" + ix);
-        var url = item.uri;
-        var title = item.title;
-        li.append($('<a>').attr('class', "storylinelink").attr('href', url).text(title));
-        // li.popover({
-        //     title: label,
-        //     placement: 'left',
-        //     html: true,
-        //     trigger: "hover",
-        //     content: function() {
-        //         var id = page + ix;
-        //         var pop = $('<div>');
-        //         var container = $('<div>').attr('class', 'tags').attr('id', id);
-        //         container.html('TAGS..')
-        //         pop.append(container);
-        //         return pop.html();
-        //     },
-        // });
-        ul.append(li);
-    });
-}
+      function zoomBounds(projection, o) {
+        var centroid = d3.geo.centroid(o),
+            clip = projection.clipExtent();
 
-function getPeople(resourceUri) {
-    var cooccurrenceUri = host + "/concepts/co-occurrences?type=http://dbpedia.org/ontology/Person&uri=" + resourceUri + "&limit=15&apikey=" + apikey;
-    $.getJSON(cooccurrenceUri).done(function(data) {
-        renderPeople(data);
-    });
-}
+        projection
+            .rotate(northUp ? [-centroid[0], -centroid[1]] : zoom.rotateTo(centroid))
+            .clipExtent(null)
+            .scale(1)
+            .translate([0, 0]);
 
-function renderPeople(data) {
-    var ul = $('ul.peoplelist');
-    $.each(data['co-occurrences'], function(ix, item) {
-        var li = $('<li>').attr('id', ix).attr('class', 'lead');
-        var title = item.label;
-        var url = item.thing;
-        li.append($('<a>').attr('class', "personlink").attr('href', url).text(title));
-        li.popover({
-            title: title,
-            placement: 'left',
-            html: true,
-            trigger: "hover",
-            content: function() {
-                var id = 'p' + ix;
-                var pop = $('<div>');
-                var container = $('<div>').attr('class', 'concept-information').attr('id', id);
-                getConcept(url, container, true, false);
-                pop.append(container);
-                return pop.html();
-            },
-        });
-        ul.append(li);
-    });
-}
+        var b = path.bounds(o),
+            k = Math.min(1000, .45 / Math.max(Math.max(Math.abs(b[1][0]), Math.abs(b[0][0])) / width, Math.max(Math.abs(b[1][1]), Math.abs(b[0][1])) / height));
 
-function getConcept(concept, selector, pop, async) {
-    var defaults = {
-        host: host,
-        apipath: '/concepts'
+        projection
+            .clipExtent(clip)
+            .scale(k)
+            .translate([width / 2, height / 2]);
+      }
+
+      countries = countries.filter(function(d) {
+          return names.some(function(n) {
+              if (d.id == n.id) return d.name = n.name;
+          });
+          //}).sort(function(a, b) {
+          //return a.name.localeCompare(b.name);
+      });
+     
+      zoomToCountry();
+
     };
-    var endpoint = defaults.host + defaults.apipath + '?uri=' + encodeURIComponent(concept) + "&apikey=" + apikey;
-    var conceptObj = {};
-    $.ajax({
-        url: endpoint,
-        async: async,
-        dataType: 'json',
-        success: function(data) {
-            conceptObj = uniformConcept(data);
-            if (selector) {
-                renderConcept(conceptObj, selector, pop);
-            }
-        }
-    });
-    return conceptObj;
-}
 
-function uniformConcept(conceptObj) {
-    if (conceptObj.type == rdfTypes.storyline) {
-        var defaults = {
-            host: juicerConfig.triplestore.host,
-            apipath: '/storylines'
-        };
-        var endpoint = defaults.host + defaults.apipath + '?uri=' + encodeURIComponent(conceptObj.uri) + "&apikey=" + apikey;
-        $.ajax({
-            url: endpoint,
-            async: false,
-            dataType: 'json',
-            success: function(data) {
-                conceptObj.abstract = data["@graph"][0]["synopsis"];
-                var topic = data["@graph"][0]["topic"];
-                if (topic) {
-                    if (topic["@set"]) {
-                        conceptObj.topics = $.map(topic["@set"], function(val, i) {
-                            return val["@id"]
-                        });
-                    } else {
-                        conceptObj.topics = [topic["@id"]];
-                    }
-                    conceptObj.topics = $.map(conceptObj.topics, function(val, i) {
-                        return getConcept(val, null, null, false)
-                    });
-                }
+    // Round to integer pixels for speed, and set pixel ratio.
+    function roundRatioContext(context) {
+      return {
+        moveTo: function(x, y) { context.moveTo(Math.round(x * ratio), Math.round(y * ratio)); },
+        lineTo: function(x, y) { context.lineTo(Math.round(x * ratio), Math.round(y * ratio)); },
+        closePath: function() { context.closePath(); }
+      };
+    }
+
+    /*
+    var marker;
+    var googleGeocoder = new google.maps.Geocoder();
+    var googleMapOptions = { zoom: 3, mapTypeId: google.maps.MapTypeId.ROADMAP };
+    var googleMap = new google.maps.Map(document.getElementById('map-overlay'), googleMapOptions);
+
+    function lookupLocation(address) {        
+        googleGeocoder.geocode( { 'address': address}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                googleMap.setCenter(results[0].geometry.location);
+                if (marker)
+                    marker.setMap(null);
+                marker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location,
+                    draggable: true
+                });
+                google.maps.event.addListener(marker, "dragend", function() {
+                    document.getElementById('lat').value = marker.getPosition().lat();
+                    document.getElementById('lng').value = marker.getPosition().lng();
+                });
+                document.getElementById('lat').value = marker.getPosition().lat();
+                document.getElementById('lng').value = marker.getPosition().lng();
+                $('#map-overlay').css({ opacity: 1 });
             }
         });
     }
-    return conceptObj;
-}
-
-function renderConcept(concept, selector, pop) {
-    if (concept.thumbnail) {
-        var imgEl = $('<img>').attr('src', concept.thumbnail).attr('class', 'concept-img');
-        imgEl.attr('onerror', 'conceptImageError(this)');
-        var conceptThumb = $('<div>').attr('class', "concept-thumb").append(imgEl);
-        conceptThumb.appendTo(selector);
-    }
-    var conceptAbstract = $('<div>').attr('class', "concept-abstract").text(concept.abstract);
-    conceptAbstract.appendTo(selector);
-    if (!pop) {
-        // link to concept's wikipedia entry only if dbpedia resource
-        var slug = (concept.uri.match(/dbpedia.org\/resource\/([^&]+)/) || [, null])[1];
-        var url = null;
-        if (slug) url = 'http://en.wikipedia.org/wiki/' + slug;
-        if (url) {
-            var conceptLink = $('<div>').add($('<a>').attr('href', url).text(url));
-            conceptLink.appendTo(selector);
-        }
-        // link to alternative view for country/place
-        if (urlparts.page.match(/(place|country)/) && conceptIsA(concept.label, "http://dbpedia.org/ontology/Country")) {
-            var altView = urlparts.page == 'place' ? 'country' : 'place';
-            var altLink = $('<div>').add($('<a>').attr('href', conceptUrl(altView, slug)).text('View as ' + altView));
-            altLink.appendTo(selector);
-        }
-        // link to google maps for places
-        if (concept.lat && concept.long) {
-            var mapsUrl = 'https://maps.google.co.uk/?q=' + concept.lat + ',' + concept.long + '&z=15';
-            var mapsLink = $('<div>').add($('<a>').attr('href', mapsUrl).text('View in google maps'));
-            mapsLink.appendTo(selector);
-        }
-    }
-    if (concept.topics) {
-        var topics = $('<div>').attr('class', "topics");
-        if (!pop) {
-            $('<h2>').attr('class', "side-title").text('Related').appendTo(topics);
-        }
-
-        renderConcepts(concept.topics, topics);
-        topics.appendTo(selector);
-
-    }
-
-    if (!$('.mentioned')[0]) {
-        var m = $('<div>').attr('class', 'row-fluid mentioned')
-            .attr('style', 'width: 93%')
-            .append('<h2 style="font-weight: 300; font-size: 1.8em;">Mentioned </h2>')
-            .appendTo('#concept-information');
-
-        var s = $('<div style="margin-left: 0;">');
-        s.attr('class', "storylines storyline-co span6 clearfix").appendTo(m);
-        $('<h2>').attr('class', "side-title").text('Storylines').appendTo(s);
-
-        var e = $('<div>');
-        e.attr('class', "events event-co span6").appendTo(m);
-        $('<h2>').attr('class', "side-title").text('Events').appendTo(e);
-    }
-}
-
-
-function renderCreativeWorks(data) {
-    $('.sidebar .loading').hide();
-    var ul = $('ul.cwlist');
-    var dedupedArticles = {};
-    $.each(data['@graph'], function(ix, item) {
-        var li = $('<li>').attr('id', ix);
-        dedupedArticles[$.trim(item.title)] = item;
-    });
-    var ix = 0;
-    for (var article in dedupedArticles) {  
-        
-        if (ix >= 10)      
-            return;
-            
-        var item = dedupedArticles[article];
-        var li = $('<li>').attr('id', "article" + ix).attr('class', 'lead');
-        var url = item.primaryContentOf;
-        var title = item.title;
-        var thumbnail = item.thumbnail;
-        li.append($('<a>').attr('class', "cwlink").attr('href', url).text(title));
-        // li.popover({
-        //     title: label,
-        //     placement: 'left',
-        //     html: true,
-        //     trigger: "hover",
-        //     content: function() {
-        //         var id = page + ix;
-        //         var pop = $('<div>');
-        //         var container = $('<div>').attr('class', 'tags').attr('id', id);
-        //         container.html('TAGS..')
-        //         pop.append(container);
-        //         return pop.html();
-        //     },
-        // });
-        ul.append(li);
-
-        $('.marquee').append("<p>" + title + "</p>");
-        ix++;
-    }
-}
-
-function prefix(s, key) {
-    return s + key.replace(/\./g, '_');
-}
-
-function getConceptUri(countryName) {
-
-    var resourceUri = storage.get(prefix('resourceUri', countryName));
-    if (resourceUri) {
-        return resourceUri;
-    }
-    var conceptUri = host + "/concepts/tagged?q=" + countryName + "&limit=10&apikey=" + apikey;
-
-    $.ajax({
-        async: false,
-        dataType: "json",
-        url: conceptUri,
-        success: function(data) {
-            resourceUri = data[3][0];
+    */
+    
+    // Handle window resize timeouts
+    var rtime = new Date(1, 1, 2000, 12,00,00);
+    var timeout = false;
+    var delta = 200;
+    $(window).resize(function() {
+        rtime = new Date();
+        if (timeout === false) {
+            timeout = true;
+            setTimeout(resizeend, delta);
         }
     });
-    if (!resourceUri) {
-        resourceUri = 'unknown';
+    
+    // Reload the page when done resizing
+    // This is hacky but at least ensures the map is rendered correctly.
+    function resizeend() {
+        if (new Date() - rtime < delta) {
+            setTimeout(resizeend, delta);
+        } else {
+            timeout = false;
+            window.location=window.location;
+        }               
     }
-    storage.set(prefix('resourceUri', countryName), resourceUri);
-    return resourceUri;
-}
+    
+});
 
 
-
-function occurrences(countryName) {
-
-    var occurrence = storage.get(prefix('occurrence', countryName));
-    if (occurrence) {
-        return occurrence;
-    }
-
-    var resourceUri = getConceptUri(countryName);
-    if (resourceUri == 'unknown') {
-        return 0;
-    }
-
-    var occurrenceUri = host + "/concepts/co-occurrences?uri=" + resourceUri + "&limit=1&apikey=" + apikey;
-    $.ajax({
-        async: false,
-        dataType: "json",
-        url: occurrenceUri,
-        success: function(data) {
-            occurrence = data["co-occurrences"][0].occurrence;
-        }
-    });
-    if (!occurrence) {
-        occurrence = 1;
-    }
-    storage.set(prefix('occurrence', countryName), occurrence);
-    return occurrence;
-}
-
-function conceptImageError(img) {
-    img.src = "img/placeholder.jpg";
-    img.className = "concept-img concept-img--error";
-    img.onerror = "";
-    return true;
-}
