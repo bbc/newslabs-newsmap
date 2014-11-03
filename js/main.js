@@ -65,9 +65,20 @@ $(function() {
           .call(zoom)
           .call(zoom.event);
 
+
+
       function zoomIn() {
           
           var countryId = (i = ((i0 = i) + 1) % countries.length);
+      
+          // Uncomment for testing
+          // countries.forEach(function(country, index) {
+          //     if (country.name == "Ukraine") {
+          //         countryId = index;
+          //         i = index;
+          //     }
+          // });
+                    
           var countryName = countries[countryId].name;
 
           $.getJSON("http://tinata.org/countries/"+encodeURIComponent(countryName)+".json")
@@ -106,13 +117,23 @@ $(function() {
                       var images = [];
                       response["articles"].forEach(function(article) {
                           var source = article.source;
-                  
+                          var title = article.title;
+                          var icon = "fa-newspaper-o";
+                          
+                          if (title.match(/^video/i)) {
+                              title = title.replace(/^VIDEO: /, "");
+                              icon = "fa-video-camera";
+                          } else if (title.match(/pictures/i)) {
+                              title = title.replace(/^Pictures Of The day:/i, "");
+                              icon = "fa-image";
+                          }
+                          
                           if (source == "NewsWeb")
                               source = "BBCNews";
                       
                           var html = '<li class="clearfix">';
                           html += '<a href="'+article.url+'"><h4 style="margin-top: 0;">';
-                          html += '<i class="fa fa-li fa-fw fa-newspaper-o"></i> '+article.title+'<br/><small>'+source+'</small>';
+                          html += '<i class="fa fa-li fa-fw '+icon+'"></i> '+title+'<br/><small>'+source+'</small>';
                           html += '</h4></a>';
                           html += '</li>';
 
@@ -143,7 +164,7 @@ $(function() {
                     
                  }, 4000);
       
-                  $("#banner .title").html("Headlines linked to "+countryName+" from the BBC News Juicer");
+                  $("#banner .title").html("Headlines linked to "+countryName+" in the BBC News Labs Juicer");
 
                   zoomBounds(projection, countries[countryId]);
                   canvas.transition()
