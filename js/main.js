@@ -5,7 +5,7 @@ $(function() {
     var degrees = 180 / Math.PI,
         ratio = window.devicePixelRatio || 1,
         width =  $("#map").width(),
-        height = $("#map").height(),
+        height = $("#map").height() - 90,
         p = ratio;
         
     var projection = d3.geo.orthographic()
@@ -164,7 +164,7 @@ $(function() {
                     
                  }, 4000);
       
-                  $("#banner .title").html("Headlines linked to "+countryName+" in the BBC News Labs Juicer");
+                  $("#banner .title").html("Stories linked to "+countryName);
 
                   zoomBounds(projection, countries[countryId]);
                   canvas.transition()
