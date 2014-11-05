@@ -1,6 +1,6 @@
 <html>
-<link href="css/bootstrap.css" rel="stylesheet" media="screen" />
-<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
 <script>
     $.getJSON("js/countries-data.json", function(countries) {        
         var selectedCountries = [];
@@ -15,30 +15,55 @@
                 selectedCountries.push({ name: randomCountryName, count: countries[randomCountryName] });
             }
         };
+        
+        var maxCount = 0;
         $(".count").hide();
         for (var i = 0; i < selectedCountries.length; i++) {
+            if (selectedCountries[i].count > maxCount)
+                maxCount = parseInt(selectedCountries[i].count);
             $("#option"+(i+1)+" .name").html(selectedCountries[i].name);
             $("#option"+(i+1)+" .count").html(selectedCountries[i].count);
         }
         
+        var optionId = 0;
+        for (var i = 0; i < selectedCountries.length; i++) {
+            if (selectedCountries[i].count == maxCount)
+                optionId = i+1;
+        }
+        
         //$.on("click touch", "#reveal", function() {
-        $(".well").click(function() {
+        $("body").on("click touch", ".well", function() {
             $(".count").show();
-            $("#again").removeClass('hide');
+            $(".well").css({opacity: 0.2});
+            $("#option"+optionId).css({opacity: 1});
+            if (parseInt($(".count", this).text()) == maxCount) {
+                $('body').css({background: "darkgreen" });
+            } else {
+                $('body').css({background: "maroon" });
+            }
+            $("body").on("click touch", "*", function() {
+                window.location = window.location;
+            });    
         });
     
     });
 </script>
 <style>
 body {
-    background: #333;
-    color: white;
-    margin: 40px;
+    background-color: #444;
+    color: #fff;
+    margin: 5% 0;
+    text-align: center;
 }
 .well {
     border: none;
-    height: 30%;
-    text-align: center;
+    height: 40%;
+    color: #fff;
+    display: table;
+    width: 100%;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
 }
 
 .well:hover {
@@ -46,8 +71,9 @@ body {
 }
 
 .well h2 { 
-    margin-top: 20%;
-    margin-bottom: 0px;
+    display: table-cell;
+    vertical-align: middle;
+    line-height: normal;  
 }
 
 .well h2 small { 
@@ -61,27 +87,21 @@ body {
     <h1>Which country have we seen most in the news?</h1>
     <br/>
     <div class="row">
-        <div class="span6">
-            <div class="well" style="background: red"><h2 id="option1"><div class="name"></div><small class="count"></small></h2></div>
+        <div class="col-md-6">
+            <div id="option1" class="well" style="background: red"><h2><div class="name"></div><small class="count"></small></h2></div>
         </div>
-        <div class="span6">
-            <div class="well" style="background: green"><h2 id="option2"><div class="name"></div><small class="count"></small></h2></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="span6">
-            <div class="well" style="background: blue"><h2 id="option3"><div class="name"></div><small class="count"></small></h2></div>
-        </div>
-        <div class="span6">
-            <div class="well" style="background: orange"><h2 id="option4"><div class="name"></div><small class="count"></small></h2></div>
+        <div class="col-md-6">
+            <div id="option2" class="well" style="background: green"><h2><div class="name"></div><small class="count"></small></h2></div>
         </div>
     </div>
     <div class="row">
-        <div class="span12 text-center">
-            <a id="again" href="javascript:window.location = window.location" class="hide btn btn-default btn-large">Play again</a>
+        <div class="col-md-6">
+            <div id="option3" class="well" style="background: blue"><h2><div class="name"></div><small class="count"></small></h2></div>
+        </div>
+        <div class="col-md-6">
+            <div id="option4" class="well" style="background: orange"><h2><div class="name"></div><small class="count"></small></h2></div>
         </div>
     </div>
-
 </div>
 </body>
 </html>
