@@ -89,6 +89,8 @@ $(function() {
       
               var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
               var juicerApiHost = "http://data.bbc.co.uk/bbcrd-juicer";
+              var semanticApiHost = "";
+              
               var url = juicerApiHost+"/articles.json?recent_first=yes&content_format[]=TextualFormat&text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
       
               // Whitelist of sources
@@ -148,14 +150,17 @@ $(function() {
                      });
              
                      images.forEach(function(image) {
-                                      
                          var img = new Image();
                          img.onload = function(e) {
-                             if (this.width >= 75 && this.height >= 75)
-                                 $("#images").append('<a href="'+image.url+'" border="0"><img class="pull-right animated bounceIn" src="'+image.src+'" /></a>');
+                             // Skip square images
+                             if (this.width == this.height)
+                                 return;
+                             // Skip small images
+                             if (this.width <= 75 || this.height <= 75)
+                                 return;
+                             $("#images").append('<a href="'+image.url+'" border="0"><img class="pull-right animated bounceIn" src="'+image.src+'" /></a>');
                         };
                        img.src = image.src;
-
                      });
                     $("#sidebar").fadeIn();
 
