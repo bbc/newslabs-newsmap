@@ -271,7 +271,8 @@ $(function() {
             setTimeout(resizeend, delta);
         } else {
             timeout = false;
-            window.location=window.location;
+            // Disabling this for now as it's not working well on some devices (causing constant reload)
+            //window.location=window.location;
         }               
     }
     
