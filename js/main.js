@@ -91,7 +91,7 @@ $(function() {
               var juicerApiHost = "http://data.test.bbc.co.uk/bbcrd-juicer";
               var semanticApiHost = "";
               
-              var url = juicerApiHost+"/articles?recent_first=yes&content_format[]=TextualFormat&text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
+              var url = juicerApiHost+"/articles?recent_first=yes&content_format[]=TextualFormat&like-text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
       
               // Whitelist of sources
               url += "&product[]=NewsWeb";
