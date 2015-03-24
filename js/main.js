@@ -88,10 +88,10 @@ $(function() {
           .always(function() {
       
               var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
-              var juicerApiHost = "http://data.bbc.co.uk/bbcrd-juicer";
+              var juicerApiHost = "http://data.test.bbc.co.uk/bbcrd-juicer";
               var semanticApiHost = "";
               
-              var url = juicerApiHost+"/articles.json?recent_first=yes&content_format[]=TextualFormat&text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
+              var url = juicerApiHost+"/articles?recent_first=yes&content_format[]=TextualFormat&text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
       
               // Whitelist of sources
               url += "&product[]=NewsWeb";
@@ -105,6 +105,7 @@ $(function() {
               url += "&product[]=STV";
       
               $.getJSON(url).done(function(response) {
+                console.log(response);
                   // Reset sidebar to be hidden, but redisplay it as animation ends
                  $("#sidebar").fadeOut();
                  $("#images").html('');
@@ -117,8 +118,8 @@ $(function() {
                       $("#sidebar .headlines").html('');
                                 
                       var images = [];
-                      response["articles"].forEach(function(article) {
-                          var source = article.source;
+                      response["hits"].forEach(function(article) {
+                          var source = article.source['source-name'];
                           var title = article.title;
                           var icon = "fa-newspaper-o";
                           
@@ -132,7 +133,7 @@ $(function() {
                           
                           if (source == "NewsWeb")
                               source = "BBCNews";
-                      
+
                           var html = '<li class="clearfix">';
                           html += '<a href="'+article.url+'"><h4 style="margin-top: 0;">';
                           html += '<i class="fa fa-li fa-fw '+icon+'"></i> '+title+'<br/><small>'+source+'</small>';
@@ -140,7 +141,7 @@ $(function() {
                           html += '</li>';
 
                           if (article.image) {
-                              images.push({ src: article.image.src,
+                              images.push({ src: article.image,
                                             source: source,
                                             url: article.url
                                           });
