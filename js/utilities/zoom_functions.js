@@ -32,105 +32,32 @@ function zoomIn(countries, projection, path, canvas, zoom) {
 
   var countryName = countries[countryId].name;
 
-  $.getJSON("http://tinata.org/countries/"+encodeURIComponent(countryName)+".json")
+  $.getJSON(tinataUrl(countryName))
     .done(function(response) {
       countryName = response.name;
     })
-  .always(function() {
 
-    var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
-    var juicerApiHost = "http://data.test.bbc.co.uk/bbcrd-juicer";
-    var semanticApiHost = "";
+    .always(function() {
+      $.getJSON(juicerUrl(countryName))
+        .done(function(response) {
+          console.log(response);
 
-    var url = juicerApiHost+"/articles?recent_first=yes&content_format[]=TextualFormat&like-text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
+          // Reset sidebar to be hidden, but redisplay it as animation ends
+          $("#sidebar").fadeOut();
+          $("#images").html('');
 
-    // Whitelist of sources
-    url += "&product[]=NewsWeb";
-    url += "&product[]=TheGuardian";
-    url += "&product[]=TheMirror";
-    url += "&product[]=TheIndependent";
-    url += "&product[]=ExpressStar";
-    url += "&product[]=TheHuffingtonPost";
-    url += "&product[]=DailyRecord";
-    url += "&product[]=SkyNews";
-    url += "&product[]=STV";
+          setTimeout(function() {
+            structureNews(countryName, response);
+          }, 4000);
 
-    $.getJSON(url).done(function(response) {
-      console.log(response);
-      // Reset sidebar to be hidden, but redisplay it as animation ends
-      $("#sidebar").fadeOut();
-      $("#images").html('');
+          $("#banner .title").html("Stories linked to " + countryName);
 
-      setTimeout(function() {
-        //lookupLocation(countryName);
+          zoomBounds(projection, countries[countryId], path);
 
-        $("#sidebar .title").html(countryName);
-
-        $("#sidebar .headlines").html('');
-
-        var images = [];
-        response["hits"].forEach(function(article) {
-          var source = article.source['source-name'];
-          var title = article.title;
-          var icon = "fa-newspaper-o";
-
-          if (title.match(/^video/i)) {
-            title = title.replace(/^VIDEO: /, "");
-            icon = "fa-video-camera";
-          } else if (title.match(/pictures/i)) {
-            title = title.replace(/^Pictures Of The day:/i, "");
-            icon = "fa-image";
-          }
-
-          if (source == "NewsWeb")
-            source = "BBCNews";
-
-          var html = '<li class="clearfix">';
-          html += '<a href="'+article.url+'"><h4 style="margin-top: 0;">';
-          html += '<i class="fa fa-li fa-fw '+icon+'"></i> '+title+'<br/><small>'+source+'</small>';
-          html += '</h4></a>';
-          html += '</li>';
-
-          if (article.image) {
-            images.push({ src: article.image,
-              source: source,
-              url: article.url
-            });
-          }
-
-          $("#sidebar .headlines").append(html);
-        });
-
-        images.forEach(function(image) {
-          var img = new Image();
-          img.onload = function(e) {
-            // Skip square images
-            if (this.width == this.height)
-              return;
-            // Skip small images
-            if (this.width <= 75 || this.height <= 75)
-              return;
-            $("#images").append('<a href="'+image.url+'" border="0"><img class="pull-right animated bounceIn" src="'+image.src+'" /></a>');
-          };
-          img.src = image.src;
-        });
-        $("#sidebar").fadeIn();
-
-        // Start the countdown to zoom to the next country AFTER the data has finished loading for the current one
-        setTimeout(function() {
-          zoomIn(countries, projection, path, canvas, zoom);
-        }, invervalBetweenCycles);
-
-      }, 4000);
-
-      $("#banner .title").html("Stories linked to "+countryName);
-
-      zoomBounds(projection, countries[countryId], path);
-      canvas.transition()
-        .ease("quad-in-out")
-        .duration(2000) // see https://github.com/mbostock/d3/pull/2045
-        .call(zoom.projection(projection).event);
-
+          canvas.transition()
+            .ease("quad-in-out")
+            .duration(2000) // see https://github.com/mbostock/d3/pull/2045
+            .call(zoom.projection(projection).event);
+      });
     });
-  });
 }
