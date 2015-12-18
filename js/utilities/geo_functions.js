@@ -1,3 +1,5 @@
+var invervalBetweenCycles = 15000;
+
 var degrees = 180 / Math.PI,
     ratio = window.devicePixelRatio || 1,
     width =  $("#map").width(),
@@ -6,6 +8,12 @@ var degrees = 180 / Math.PI,
 
 var i = -1,
     i0 = i;
+
+function configureNorthUp() {
+  return d3.select("#north-up").on("change", function() {
+    northUp = this.checked;
+  }).property("checked");
+}
 
 function configureProjection() {
   return d3.geo.orthographic()
