@@ -9,7 +9,6 @@ $(function() {
     .await(ready);
 
   function ready(error, world, names) {
-
     var countries = configureCountries(world);
 
     var zoom = geoZoom(projection, function() {
@@ -24,7 +23,16 @@ $(function() {
       });
     });
 
-    zoomIn(countries, projection, path, canvas, zoom);
+    // zoomIn(countries, projection, path, canvas, zoom, null);
+
+    $('#map canvas').on('click', function(evt) {
+      var xPosition = evt.clientX;
+      var yPosition = evt.clientY;
+
+      mapClickedAtPosition({x: evt.clientX, y: evt.clientY}, projection, function(countryName) {
+        zoomIn(countries, projection, path, canvas, zoom, countryName);
+      });
+    });
   };
   
   shouldResize();

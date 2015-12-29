@@ -9,6 +9,8 @@ var degrees = 180 / Math.PI,
 var i = -1,
     i0 = i;
 
+var selectedCountryIds = [];
+
 function configureNorthUp() {
   return d3.select("#north-up").on("change", function() {
     northUp = this.checked;

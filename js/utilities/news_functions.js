@@ -30,7 +30,7 @@ function shouldSkipImage(contextOfThis) {
   }
 }
 
-function structureNews (countryName, response) {
+function structureNews (countryName, response, zoomInCallback) {
   $("#sidebar .title").html(countryName);
   $("#sidebar .headlines").html('');
 
@@ -38,10 +38,9 @@ function structureNews (countryName, response) {
 
   response["hits"].forEach(function(article) {
     var source = article.source['source-name'];
+    if (source == "NewsWeb") { source = "BBCNews"; }
 
     var titleAndIcon = titleAndIconFor(article);
-
-    if (source == "NewsWeb") { source = "BBCNews"; }
 
     if (article.image) {
       images.push({ src: article.image,
@@ -68,6 +67,6 @@ function structureNews (countryName, response) {
 
   // Start the countdown to zoom to the next country AFTER the data has finished loading for the current one
   setTimeout(function() {
-    zoomIn(countries, projection, path, canvas, zoom);
+    zoomInCallback();
   }, invervalBetweenCycles);
 }

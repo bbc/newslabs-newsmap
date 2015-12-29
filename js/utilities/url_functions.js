@@ -29,3 +29,8 @@ function tinataUrl(countryName) {
   return "http://tinata.org/countries/" + encodeURIComponent(countryName) + ".json";
 }
 
+function gmapsApi(latitude, longitude) {
+  return "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
+    latitude + "," + longitude +
+    "&result_type=country&key=AIzaSyD9v8sFqYjjKhW-OyNPdSb79cpRHuWI3bE";
+}

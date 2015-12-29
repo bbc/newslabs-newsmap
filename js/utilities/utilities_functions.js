@@ -24,3 +24,36 @@ function resizeend() {
     //window.location=window.location;
   }               
 }
+
+/*** UI Events ***/
+
+function mapClickedAtPosition(position, projection, callback) {
+  var longLat = projection.invert([position.x, position.y]);
+
+  latitude = longLat[1];
+  longitude = longLat[0];
+
+  $.getJSON(gmapsApi(latitude, longitude))
+    .done(function(response) {
+      var countryName = null;
+
+      if (response.results[0] != undefined || response.results[0] != null) {
+        countryName = response.results[0].address_components[0].long_name;
+      }
+
+      callback(countryName);
+    });
+}
+
+/*** Math functions ***/
+
+function randomCountryId(countries) {
+  var countryId = Math.random() * (countries.length - 1 + 1);
+
+  if (selectedCountryIds.indexOf(countryId) == -1) {
+    selectedCountryIds.push(countryId);
+    return Math.floor(countryId);
+  } else {
+    return randomCountry();
+  }
+}

@@ -16,21 +16,30 @@ function zoomBounds(projection, country, path) {
             .translate([width / 2, height / 2]);
 }
 
-function zoomIn(countries, projection, path, canvas, zoom) {
+function zoomIn(countries, projection, path, canvas, zoom, countryName) {
+  var countryId = 0;
 
-  var countryId = (i = ((i0 = i) + 1) % countries.length);
+  if (countryName == null || countryName == undefined) {
+    countryId = randomCountryId(countries);
+    countryName = countries[countryId].name;
 
-  // Uncomment for testing
-  /*
-  countries.forEach(function(country, index) {
-    if (country.name == "Ukraine") {
-      countryId = index;
-      i = index;
-    }
-  });
-  */
+  } else {
+    countries.forEach(function(country, index) {
+      if (country.name == countryName) {
+        countryId = index;
+        selectedCountryIds.push(countryId);
+      }
+    });
+  }
 
-  var countryName = countries[countryId].name;
+  i = countryId;
+
+  zoomBounds(projection, countries[countryId], path);
+
+  canvas.transition()
+    .ease("quad-in-out")
+    .duration(2000) // see https://github.com/mbostock/d3/pull/2045
+    .call(zoom.projection(projection).event);
 
   $.getJSON(tinataUrl(countryName))
     .done(function(response) {
@@ -40,6 +49,7 @@ function zoomIn(countries, projection, path, canvas, zoom) {
     .always(function() {
       $.getJSON(juicerUrl(countryName))
         .done(function(response) {
+          console.log('****');
           console.log(response);
 
           // Reset sidebar to be hidden, but redisplay it as animation ends
@@ -47,17 +57,12 @@ function zoomIn(countries, projection, path, canvas, zoom) {
           $("#images").html('');
 
           setTimeout(function() {
-            structureNews(countryName, response);
-          }, 4000);
+            structureNews(countryName, response, function() {
+              // zoomIn(countries, projection, path, canvas, zoom, countryName);
+            });
+          }, 2000);
 
           $("#banner .title").html("Stories linked to " + countryName);
-
-          zoomBounds(projection, countries[countryId], path);
-
-          canvas.transition()
-            .ease("quad-in-out")
-            .duration(2000) // see https://github.com/mbostock/d3/pull/2045
-            .call(zoom.projection(projection).event);
       });
     });
 }
