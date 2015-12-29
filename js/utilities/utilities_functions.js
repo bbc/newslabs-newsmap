@@ -3,6 +3,8 @@ var rtime = new Date(1, 1, 2000, 12,00,00);
 var timeout = false;
 var delta = 200;
 
+var shouldPlayNews = true;
+
 function shouldResize() {
   $(window).resize(function() {
     rtime = new Date();
@@ -49,6 +51,7 @@ function toggleControl(elementId) {
   switch (elementId) {
     case 'play':
       $('.news-control a#play span').toggleClass('fa-pause');
+      shouldPlayNews = !shouldPlayNews;
       break;
 
     case 'shuffle':

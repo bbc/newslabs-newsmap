@@ -45,7 +45,6 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
     .done(function(response) {
       countryName = response.name;
     })
-
     .always(function() {
       $.getJSON(juicerUrl(countryName))
         .done(function(response) {
@@ -56,7 +55,9 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
 
           setTimeout(function() {
             structureNews(countryName, response, function() {
-              // zoomIn(countries, projection, path, canvas, zoom, countryName);
+              if (shouldPlayNews == true) {
+                zoomIn(countries, projection, path, canvas, zoom, null);
+              }
             });
           }, 2000);
 

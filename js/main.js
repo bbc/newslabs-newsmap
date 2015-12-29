@@ -23,11 +23,15 @@ $(function() {
       });
     });
 
-    // zoomIn(countries, projection, path, canvas, zoom, null);
+    zoomIn(countries, projection, path, canvas, zoom, null);
 
     $('#map canvas').on('click', function(evt) {
       var xPosition = evt.clientX;
       var yPosition = evt.clientY;
+
+      if (shouldPlayNews == true) {
+        toggleControl('play');
+      }
 
       mapClickedAtPosition({x: evt.clientX, y: evt.clientY}, projection, function(countryName) {
         zoomIn(countries, projection, path, canvas, zoom, countryName);
@@ -37,6 +41,10 @@ $(function() {
     $('.news-control a').on('click', function(evt) {
       evt.preventDefault();
       toggleControl(this.id);
+
+      if (shouldPlayNews == true) {
+        zoomIn(countries, projection, path, canvas, zoom, null);
+      }
     });
   };
   
