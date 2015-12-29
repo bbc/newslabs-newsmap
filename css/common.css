@@ -98,6 +98,20 @@ li.lead {
     margin-bottom: 0px;
 }
 
+.news-control {
+  position: absolute;
+  top: 15px;
+  left: 30px;
+}
+
+.news-control a:visited {
+  background: #ffffff;
+}
+
+.news-control a#shuffle.on {
+  color: #2F6CB8 !important;
+}
+
 #images {
     position: absolute;
     bottom: 100px;

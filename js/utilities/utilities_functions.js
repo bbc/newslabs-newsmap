@@ -45,6 +45,18 @@ function mapClickedAtPosition(position, projection, callback) {
     });
 }
 
+function toggleControl(elementId) {
+  switch (elementId) {
+    case 'play':
+      $('.news-control a#play span').toggleClass('fa-pause');
+      break;
+
+    case 'shuffle':
+      $('.news-control a#shuffle').toggleClass('on');
+      break;
+  }
+}
+
 /*** Math functions ***/
 
 function randomCountryId(countries) {

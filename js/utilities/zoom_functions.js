@@ -49,8 +49,6 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
     .always(function() {
       $.getJSON(juicerUrl(countryName))
         .done(function(response) {
-          console.log('****');
-          console.log(response);
 
           // Reset sidebar to be hidden, but redisplay it as animation ends
           $("#sidebar").fadeOut();

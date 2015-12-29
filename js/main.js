@@ -33,6 +33,11 @@ $(function() {
         zoomIn(countries, projection, path, canvas, zoom, countryName);
       });
     });
+
+    $('.news-control a').on('click', function(evt) {
+      evt.preventDefault();
+      toggleControl(this.id);
+    });
   };
   
   shouldResize();
