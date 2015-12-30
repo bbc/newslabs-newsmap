@@ -104,12 +104,12 @@ function styleContextForProjection(context, projection, path, world, countries) 
 
   projection.clipAngle(Math.asin(Math.min(1, .5 * Math.sqrt(width * width + height * height) / projection.scale())) * degrees);
   context.clearRect(0, 0, width * ratio, height * ratio);
-  context.fillStyle = "#194677", context.beginPath(), path(globe), context.fill();
+  context.fillStyle = "#626262", context.beginPath(), path(globe), context.fill();
   context.strokeStyle = "#6B88F3", context.lineWidth = .25 * ratio, context.beginPath(), path(graticule), context.stroke();
-  context.fillStyle = "#D1B76E", context.beginPath(), path(land), context.fill();
-  context.fillStyle = "#D1B76E", context.beginPath(), path(land), context.fill();            
-  context.fillStyle = "#f00", context.beginPath(), path(countries[i0]), context.fill();
-  context.fillStyle = "#f00", context.beginPath(), path(countries[i]), context.fill();
+  context.fillStyle = "#3F3F3F", context.beginPath(), path(land), context.fill();
+  context.fillStyle = "#3F3F3F", context.beginPath(), path(land), context.fill();            
+  context.fillStyle = "#F6F6F6", context.beginPath(), path(countries[i0]), context.fill();
+  context.fillStyle = "#F6F6F6", context.beginPath(), path(countries[i]), context.fill();
   context.strokeStyle = "#9C864C", context.lineWidth = 1 * ratio, context.beginPath(), path(borders), context.stroke();
   context.strokeStyle = "#fff", context.lineWidth = 3 * ratio, context.beginPath(), path(globe), context.stroke();
 }

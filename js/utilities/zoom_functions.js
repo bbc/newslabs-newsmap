@@ -64,7 +64,6 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
           setTimeout(function() {
             structureNews(countryName, response, function() {
               if (shouldPlayNews == true) {
-                console.log('&&&&');
                 zoomIn(countries, projection, path, canvas, zoom, null);
               }
             });
