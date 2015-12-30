@@ -4,6 +4,8 @@ var timeout = false;
 var delta = 200;
 
 var shouldPlayNews = true;
+var shouldShuffleNews = true;
+var canBackward = false;
 
 function shouldResize() {
   $(window).resize(function() {
@@ -56,8 +58,24 @@ function toggleControl(elementId) {
 
     case 'shuffle':
       $('.news-control a#shuffle').toggleClass('on');
+      shouldShuffleNews = !shouldShuffleNews;
       break;
   }
+}
+
+function shouldEnableOrDisableBackward(countriesList) {
+  if (countriesList.length == 0) {
+    $('.news-control a#backward').addClass('disabled');
+    canBackward = false;
+  } else {
+    $('.news-control a#backward').removeClass('disabled');
+    canBackward = true;
+  }
+}
+
+function pauseNews() {
+  $('.news-control a#play span').removeClass('fa-pause');
+  shouldPlayNews = false;
 }
 
 /*** Math functions ***/
@@ -65,10 +83,33 @@ function toggleControl(elementId) {
 function randomCountryId(countries) {
   var countryId = Math.random() * (countries.length - 1 + 1);
 
-  if (selectedCountryIds.indexOf(countryId) == -1) {
-    selectedCountryIds.push(countryId);
-    return Math.floor(countryId);
+  if (randomCountryIndexes.indexOf(countryId) == -1) {
+    var countryIndex =  Math.floor(countryId);
+
+    randomCountryIndexes.push(countryIndex);
+    return countryIndex;
   } else {
     return randomCountry();
+  }
+}
+
+function orderedCountryId(countries) {
+  var lastCountry = 0;
+
+  if (orderedCountryIndexes.length == 0) {
+    orderedCountryIndexes.push(lastCountry);
+    return lastCountry;
+  }
+
+  if (countries.length == orderedCountryIndexes.length) {
+    orderedCountryIndexes = [];
+  } else {
+    var lastIndex = orderedCountryIndexes.length - 1;
+    lastCountry = orderedCountryIndexes[lastIndex];
+  }
+
+  if (orderedCountryIndexes.indexOf(++lastCountry) == -1) {
+    orderedCountryIndexes.push(lastCountry);
+    return lastCountry;
   }
 }

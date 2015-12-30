@@ -20,19 +20,31 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
   var countryId = 0;
 
   if (countryName == null || countryName == undefined) {
-    countryId = randomCountryId(countries);
-    countryName = countries[countryId].name;
+    if (shouldPlayNews == true) {
+      if (shouldShuffleNews == true) {
+        countryId = randomCountryId(countries);
+      } else {
+        countryId = orderedCountryId(countries);
+      }
+
+      countryName = countries[countryId].name;
+    }
+
+    shouldEnableOrDisableBackward(displayedCountriesIndexes);
 
   } else {
     countries.forEach(function(country, index) {
       if (country.name == countryName) {
         countryId = index;
-        selectedCountryIds.push(countryId);
       }
     });
   }
 
   i = countryId;
+
+  if (shouldPlayNews == true) {
+    displayedCountriesIndexes.push(countryId);
+  }
 
   zoomBounds(projection, countries[countryId], path);
 

@@ -40,10 +40,18 @@ $(function() {
 
     $('.news-control a').on('click', function(evt) {
       evt.preventDefault();
-      toggleControl(this.id);
+      var controlId = this.id;
+      toggleControl(controlId);
 
       if (shouldPlayNews == true) {
         zoomIn(countries, projection, path, canvas, zoom, null);
+      }
+
+      if (canBackward == true) {
+        pauseNews();
+
+        var countryName = getCountryNameOnBackward(countries);
+        zoomIn(countries, projection, path, canvas, zoom, countryName);
       }
     });
   };

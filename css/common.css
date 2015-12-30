@@ -112,6 +112,11 @@ li.lead {
   color: #2F6CB8 !important;
 }
 
+.news-control a.disabled span {
+  color: #a9a9a9;
+  cursor: default;
+}
+
 #images {
     position: absolute;
     bottom: 100px;
