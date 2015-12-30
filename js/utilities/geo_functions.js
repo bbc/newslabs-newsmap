@@ -107,9 +107,7 @@ function styleContextForProjection(context, projection, path, world, countries) 
   context.fillStyle = "#626262", context.beginPath(), path(globe), context.fill();
   context.strokeStyle = "#6B88F3", context.lineWidth = .25 * ratio, context.beginPath(), path(graticule), context.stroke();
   context.fillStyle = "#3F3F3F", context.beginPath(), path(land), context.fill();
-  context.fillStyle = "#3F3F3F", context.beginPath(), path(land), context.fill();            
-  context.fillStyle = "#F6F6F6", context.beginPath(), path(countries[i0]), context.fill();
-  context.fillStyle = "#F6F6F6", context.beginPath(), path(countries[i]), context.fill();
+  context.fillStyle = "#DBDBDB", context.beginPath(), path(countries[i]), context.fill();
   context.strokeStyle = "#9C864C", context.lineWidth = 1 * ratio, context.beginPath(), path(borders), context.stroke();
   context.strokeStyle = "#fff", context.lineWidth = 3 * ratio, context.beginPath(), path(globe), context.stroke();
 }
