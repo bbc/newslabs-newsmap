@@ -17,34 +17,30 @@ function zoomBounds(projection, country, path) {
 }
 
 function zoomIn(countries, projection, path, canvas, zoom, countryName) {
-  var countryId = 0;
+  var countryId = -1;
 
   if (countryName == null || countryName == undefined) {
-    if (shouldPlayNews == true) {
-      if (shouldShuffleNews == true) {
-        countryId = randomCountryId(countries);
-      } else {
-        countryId = orderedCountryId(countries);
-      }
-
-      countryName = countries[countryId].name;
+    if (shouldShuffleNews == true) {
+      countryId = randomCountryId(countries);
+    } else {
+      countryId = orderedCountryId(countries);
     }
 
-    shouldEnableOrDisableBackward(displayedCountriesIndexes);
+    displayedCountriesIndexes.push(countryId);
+    countryName = countries[countryId].name;
+
+    shouldEnableOrDisableBFControls(displayedCountriesIndexes.length, countries.length);
 
   } else {
     countries.forEach(function(country, index) {
       if (country.name == countryName) {
         countryId = index;
+        displayedCountriesIndexes.push(countryId);
       }
     });
   }
 
   i = countryId;
-
-  if (shouldPlayNews == true) {
-    displayedCountriesIndexes.push(countryId);
-  }
 
   zoomBounds(projection, countries[countryId], path);
 
@@ -68,6 +64,7 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
           setTimeout(function() {
             structureNews(countryName, response, function() {
               if (shouldPlayNews == true) {
+                console.log('&&&&');
                 zoomIn(countries, projection, path, canvas, zoom, null);
               }
             });

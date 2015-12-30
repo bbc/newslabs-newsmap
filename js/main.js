@@ -4,6 +4,8 @@ $(function() {
   var context = getContextFor(canvas);
   var path = configurePath(projection, context);
 
+  var numberOfBackwardClicks = 0;
+
   queue().defer(d3.json, "data/world-110m.json")
     .defer(d3.tsv, "data/world-country-names.tsv")
     .await(ready);
@@ -43,14 +45,32 @@ $(function() {
       var controlId = this.id;
       toggleControl(controlId);
 
-      if (shouldPlayNews == true) {
+      if (shouldPlayNews == true && controlId == 'play') {
+        numberOfBackwardClicks = 0;
         zoomIn(countries, projection, path, canvas, zoom, null);
       }
 
-      if (canBackward == true) {
+      if (canBackward == true && controlId == 'backward') {
         pauseNews();
 
+        if (++numberOfBackwardClicks == 1) {
+          var lastIndex = displayedCountriesIndexes.splice(-1, 1)[0];
+          countriesOnBackward.push(lastIndex);
+        }
+
         var countryName = getCountryNameOnBackward(countries);
+        zoomIn(countries, projection, path, canvas, zoom, countryName);
+
+        // this ugly hack exists because otherwise the just removed id will
+        // be inserted again and again and again ... (you got the idea, rigth?)
+        displayedCountriesIndexes.splice(-1, 1);
+      }
+
+      if (canForward == true && controlId == 'forward') {
+        numberOfBackwardClicks = 0;
+        pauseNews();
+
+        var countryName = getCountryNameOnForward(countries);
         zoomIn(countries, projection, path, canvas, zoom, countryName);
       }
     });

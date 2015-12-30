@@ -63,13 +63,28 @@ function toggleControl(elementId) {
   }
 }
 
+function shouldEnableOrDisableBFControls(displayedCountriesIndexes, countries) {
+  shouldEnableOrDisableBackward(displayedCountriesIndexes);
+  shouldEnableOrDisableForward(countries, displayedCountriesIndexes);
+}
+
 function shouldEnableOrDisableBackward(countriesList) {
-  if (countriesList.length == 0) {
+  if (countriesList == 0) {
     $('.news-control a#backward').addClass('disabled');
     canBackward = false;
   } else {
     $('.news-control a#backward').removeClass('disabled');
     canBackward = true;
+  }
+}
+
+function shouldEnableOrDisableForward(countriesList, displayedCountriesList) {
+  if (displayedCountriesList >= countriesList) {
+    $('.news-control a#forward').addClass('disabled');
+    canForward = false;
+  } else {
+    $('.news-control a#forward').removeClass('disabled');
+    canForward = true;
   }
 }
 

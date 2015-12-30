@@ -1,4 +1,4 @@
-var invervalBetweenCycles = 2000;
+var invervalBetweenCycles = 15000;
 
 var degrees = 180 / Math.PI,
     ratio = window.devicePixelRatio || 1,
@@ -13,7 +13,6 @@ var randomCountryIndexes = [];
 var orderedCountryIndexes = [];
 var displayedCountriesIndexes = [];
 var countriesOnBackward = [];
-
 
 function configureNorthUp() {
   return d3.select("#north-up").on("change", function() {
@@ -63,13 +62,26 @@ function configureCountries(world) {
 
 function getCountryNameOnBackward(countries) {
   if (displayedCountriesIndexes.length > 0) {
-    var lastCountryIndex = displayedCountriesIndexes.splice(-1, 1);
+    var lastCountryIndex = displayedCountriesIndexes.splice(-1, 1)[0];
 
     countriesOnBackward.push(lastCountryIndex);
 
     shouldEnableOrDisableBackward(displayedCountriesIndexes);
 
     return countries[lastCountryIndex].name
+  }
+}
+
+function getCountryNameOnForward(countries) {
+  if (countriesOnBackward.length > 0) {
+    var nextCountryIndex = countriesOnBackward.splice(0, 1)[0];
+
+    displayedCountriesIndexes.push(nextCountryIndex);
+
+    return countries[nextCountryIndex].name;
+
+  } else {
+    return null;
   }
 }
 
