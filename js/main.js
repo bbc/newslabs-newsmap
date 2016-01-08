@@ -88,10 +88,10 @@ $(function() {
           .always(function() {
       
               var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
-              var juicerApiHost = "http://data.test.bbc.co.uk/bbcrd-juicer";
+              var juicerApiHost = "http://juicer.api.bbci.co.uk";
               var semanticApiHost = "";
               
-              var url = juicerApiHost+"/articles?recent_first=yes&content_format[]=TextualFormat&like-text="+encodeURIComponent(countryName)+'&apikey='+encodeURIComponent(apiKey);
+              var url = juicerApiHost+"/articles?recent_first=yes&content_format[]=TextualFormat&like-text="+encodeURIComponent(countryName)+'&api_key='+encodeURIComponent(apiKey);
       
               // Whitelist of sources
               url += "&product[]=NewsWeb";
