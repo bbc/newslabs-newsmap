@@ -34,10 +34,17 @@ function structureNews (countryName, response, zoomInCallback) {
   $("#sidebar .title").html(countryName);
   $("#sidebar .headlines").html('');
 
+  var newsToDisplay = {};
   var images = [];
 
   response["hits"].forEach(function(article) {
+    newsToDisplay["'" + article.title.toLowerCase() + "'"] = article;
+  });
+
+  for(var title in newsToDisplay) {
+    var article = newsToDisplay[title];
     var source = article.source['source-name'];
+
     if (source == "NewsWeb") { source = "BBCNews"; }
 
     var titleAndIcon = titleAndIconFor(article);
@@ -50,7 +57,7 @@ function structureNews (countryName, response, zoomInCallback) {
     }
 
     $("#sidebar .headlines").append(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
-  });
+  };
 
   images.forEach(function(image) {
     var img = new Image();

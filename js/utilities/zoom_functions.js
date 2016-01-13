@@ -57,9 +57,17 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
       $.getJSON(juicerUrl(countryName))
         .done(function(response) {
 
+          // We need to set z-index higher before reset to avoid
+          // fadeOut effect conflict
+          $("#banner").css('z-index', '1300');
+          $("#logo").css('z-index', '1301');
+
           // Reset sidebar to be hidden, but redisplay it as animation ends
-          $("#sidebar").fadeOut();
-          $("#images").html('');
+          $("#sidebar").fadeOut(function() {
+            $("#banner").css('z-index', '1000');
+            $("#logo").css('z-index', '1001');
+          });
+          // $("#images").html('');
 
           setTimeout(function() {
             structureNews(countryName, response, function() {
@@ -67,7 +75,7 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
                 zoomIn(countries, projection, path, canvas, zoom, null);
               }
             });
-          }, 2000);
+          }, 1000);
 
           $("#banner .title").html("Stories linked to " + countryName);
       });
