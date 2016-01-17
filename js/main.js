@@ -74,6 +74,22 @@ $(function() {
         zoomIn(countries, projection, path, canvas, zoom, countryName);
       }
     });
+
+    $('#news-menu .trending li a').on('click', function(evt) {
+      evt.preventDefault();
+      pauseNews();
+
+      selectedTrending = this.id;
+
+      $('#news-menu .trending li.active').toggleClass('active');
+      $(this).parent('li').addClass('active');
+
+      getRelevantNewsForTrending(selectedTrending, function() {
+        for(trendingName in trendingData[selectedTrending]) {
+          drawArticles(trendingData[selectedTrending][trendingName], null);
+        };
+      });
+    });
   };
   
   shouldResize();

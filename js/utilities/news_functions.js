@@ -30,19 +30,56 @@ function shouldSkipImage(contextOfThis) {
   }
 }
 
-function structureNews (countryName, response, zoomInCallback) {
+function getRelevantNewsForTrending(selectedTrending, functionCallback) {
+
+  var trendings = trendingData[selectedTrending];
+
+  Object.keys(trendings).forEach(function(trendingName) {
+    $.getJSON(juicerUrl(trendingName.replace('_', ' '), true))
+      .done(function(response) {
+        response["hits"].forEach(function(article) {
+          trendingData[selectedTrending][trendingName][article.title.toLowerCase()] = article;
+        );
+
+        functionCallback();
+      });
+  });
+}
+
+function structureNews (countryName, response) {
   $("#sidebar .title").html(countryName);
   $("#sidebar .headlines").html('');
 
-  var newsToDisplay = {};
-  var images = [];
+  newsToDisplay = {};
+
+  response['trending'].items.forEach(function(trending) {
+    var trendingType = trending.id.replace(/http:\/\/dbpedia\.org\/(ontology|resource)\//, '');
+
+    if (trendingType == 'Person') {
+      trendingType = 'People';
+    } else {
+      trendingType += 's';
+    }
+
+    trendingData[trendingType] = {};
+
+    trending.items.forEach(function(trendingItem) {
+      var trendingName = trendingItem.id.replace('http://dbpedia.org/resource/', '');
+      trendingData[trendingType][trendingName] = {};
+    });
+  });
 
   response["hits"].forEach(function(article) {
     newsToDisplay["'" + article.title.toLowerCase() + "'"] = article;
   });
+}
 
-  for(var title in newsToDisplay) {
-    var article = newsToDisplay[title];
+function drawArticles(sources, zoomInCallback) {
+  var images = [];
+  $("#sidebar .headlines").html('');
+
+  for(var title in sources) {
+    var article = sources[title];
     var source = article.source['source-name'];
 
     if (source == "NewsWeb") { source = "BBCNews"; }
@@ -59,12 +96,14 @@ function structureNews (countryName, response, zoomInCallback) {
     $("#sidebar .headlines").append(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
   };
 
+  $("#news-menu").fadeIn();
+
   images.forEach(function(image) {
     var img = new Image();
     img.onload = function(e) {
       if (shouldSkipImage(this) == true) { return; };
 
-      $("#images").append('<a href="'+image.url+'" border="0"><img class="pull-right animated bounceIn" src="'+image.src+'" /></a>');
+      // $("#news-menu").fadeIn();
     };
 
     img.src = image.src;

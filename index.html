@@ -25,7 +25,61 @@
       <a id='forward' class="btn btn-default" href="#" role="button"><span class='fa fa-forward'></span></a>
       <a id='shuffle' class="btn btn-default on" href="#" role="button"><span class='fa fa-random'></span></a>
     </div>
-    <div id="images"></div>
+
+    <nav id='news-menu' class="navbar navbar-default left-top-bottom-rounded-5px">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="trending nav navbar-nav">
+            <li>
+              <a class='Things' href="#">
+                <i class="fa fa-cube"></i>
+                <br/>
+                <span>Things</span>
+              </a>
+            </li>
+            <li>
+              <a id='Places' href="#">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                <span>Places</span>
+              </a>
+            </li>
+            <li>
+              <a id='Organisations' href="#">
+                <i class="fa fa-users"></i>
+                <br/>
+                <span>Orgs</span>
+              </a>
+            </li>
+            <li>
+              <a id='People' href="#">
+                <i class="fa fa-user"></i>
+                <br/>
+                <span>People</span>
+              </a>
+            </li>
+            <li class="active">
+              <a id='News' href="#">
+                <i class="fa fa-newspaper-o"></i>
+                <br/>
+                <span>News</span>
+              </a>
+            </li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
 
     <div id="banner">
       <h2 class="title">News stories from the BBC News Labs Juicer...</h2>
@@ -42,6 +96,7 @@
     </div>
     <!-- <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script> -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="js/d3.min.js?zoom"></script>
     <script src="js/topojson.min.js"></script>
     <script src="js/d3.geo.zoom.js"></script>

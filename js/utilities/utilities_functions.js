@@ -7,6 +7,10 @@ var shouldPlayNews = true;
 var shouldShuffleNews = true;
 var canBackward = false;
 
+var newsToDisplay = {};
+var trendingData = {};
+var selectedTrending = null;
+
 function shouldResize() {
   $(window).resize(function() {
     rtime = new Date();

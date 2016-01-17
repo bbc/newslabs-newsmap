@@ -54,23 +54,16 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
       countryName = response.name;
     })
     .always(function() {
-      $.getJSON(juicerUrl(countryName))
+      $.getJSON(juicerUrl(countryName, false))
         .done(function(response) {
 
-          // We need to set z-index higher before reset to avoid
-          // fadeOut effect conflict
-          $("#banner").css('z-index', '1300');
-          $("#logo").css('z-index', '1301');
-
-          // Reset sidebar to be hidden, but redisplay it as animation ends
-          $("#sidebar").fadeOut(function() {
-            $("#banner").css('z-index', '1000');
-            $("#logo").css('z-index', '1001');
-          });
-          // $("#images").html('');
+          $("#news-menu").fadeOut();
+          $("#sidebar").fadeOut();
+          selectedTrending = null;
 
           setTimeout(function() {
-            structureNews(countryName, response, function() {
+            structureNews(countryName, response);
+            drawArticles(newsToDisplay, function() {
               if (shouldPlayNews == true) {
                 zoomIn(countries, projection, path, canvas, zoom, null);
               }
