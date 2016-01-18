@@ -90,7 +90,6 @@ function drawArticles(sources, zoomInCallback) {
     if (source == "NewsWeb") { source = "BBCNews"; }
 
     var titleAndIcon = titleAndIconFor(article);
-
     headlines.push(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
   };
 

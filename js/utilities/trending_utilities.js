@@ -25,15 +25,12 @@ function accordionHeadingFor(index, panelTitle, headlines) {
 }
 
 function drawTrendingAccordion(panelTitle, sources) {
-  var images = [];
-  $("#sidebar .headlines").html('');
-
   var headlines = [];
+  $("#sidebar .headlines").html('');
 
   for(var title in sources) {
     var article = sources[title];
     var source = article.source['source-name'];
-
 
     if (source == "NewsWeb") { source = "BBCNews"; }
 
