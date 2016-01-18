@@ -9,6 +9,7 @@ var canBackward = false;
 
 var newsToDisplay = {};
 var trendingData = {};
+var trendingTypesReady = [];
 var selectedTrending = null;
 
 function shouldResize() {
@@ -36,6 +37,11 @@ function resizeend() {
 /*** UI Events ***/
 
 function mapClickedAtPosition(position, projection, callback) {
+  newsToDisplay = {};
+  trendingData = {};
+  trendingTypesReady = [];
+  selectedTrending = 'News';
+
   var longLat = projection.invert([position.x, position.y]);
 
   latitude = longLat[1];

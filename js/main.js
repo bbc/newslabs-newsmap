@@ -35,6 +35,9 @@ $(function() {
         toggleControl('play');
       }
 
+      $('#news-menu .trending li.active').toggleClass('active');
+      $('#news-menu .trending li a#News').parent('li').addClass('active');
+
       mapClickedAtPosition({x: evt.clientX, y: evt.clientY}, projection, function(countryName) {
         zoomIn(countries, projection, path, canvas, zoom, countryName);
       });
@@ -86,15 +89,18 @@ $(function() {
       $('#news-menu .trending li.active').toggleClass('active');
       $(this).parent('li').addClass('active');
 
-      getRelevantNewsForTrending(selectedTrending, function() {
-        var trendingNews = {};
+      if (selectedTrending == 'News') {
+        drawArticles(newsToDisplay, function() { return; })
 
-        for(trendingName in trendingData[selectedTrending]) {
-          drawTrendingAccordion(trendingName, trendingData[selectedTrending][trendingName]);
-        };
+      } else {
+        getRelevantNewsForTrending(selectedTrending, function() {
+          var trendingNews = {};
 
-        // drawArticles(trendingNews, function() { return; });
-      });
+          for(trendingName in trendingData[selectedTrending]) {
+            drawTrendingAccordion(trendingName, trendingData[selectedTrending][trendingName]);
+          };
+        });
+      }
     });
   };
   

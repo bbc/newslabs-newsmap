@@ -22,6 +22,11 @@ function titleAndIconFor(article) {
 }
 
 function getRelevantNewsForTrending(selectedTrending, functionCallback) {
+  // if the trending news are already fetched
+  if (trendingTypesReady.indexOf(selectedTrending) > -1) {
+    functionCallback();
+    return;
+  }
 
   var trendings = trendingData[selectedTrending];
   var trendingsKeys = Object.keys(trendings);
@@ -35,6 +40,7 @@ function getRelevantNewsForTrending(selectedTrending, functionCallback) {
         });
 
         if (++index == trendingsKeys.length) {
+          trendingTypesReady.push(selectedTrending);
           functionCallback();
         }
       });
