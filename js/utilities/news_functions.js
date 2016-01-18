@@ -21,15 +21,6 @@ function titleAndIconFor(article) {
   return { title: title, icon: icon };
 }
 
-function shouldSkipImage(contextOfThis) {
-  if ((contextOfThis.width == contextOfThis.height) ||
-      (contextOfThis.width <= 75 || contextOfThis.height <= 75)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function getRelevantNewsForTrending(selectedTrending, functionCallback) {
 
   var trendings = trendingData[selectedTrending];
@@ -68,8 +59,12 @@ function structureNews (countryName, response) {
     trendingData[trendingType] = {};
 
     trending.items.forEach(function(trendingItem) {
-      var trendingName = trendingItem.id.replace('http://dbpedia.org/resource/', '');
-      trendingData[trendingType][trendingName] = {};
+      var numberOfTrendings = Object.keys(trendingData[trendingType]).length;
+
+      if (numberOfTrendings < 5) {
+        var trendingName = trendingItem.id.replace('http://dbpedia.org/resource/', '');
+        trendingData[trendingType][trendingName] = {};
+      }
     });
   });
 
@@ -79,7 +74,7 @@ function structureNews (countryName, response) {
 }
 
 function drawArticles(sources, zoomInCallback) {
-  var images = [];
+  var headlines = [];
   $("#sidebar .headlines").html('');
 
   for(var title in sources) {
@@ -90,28 +85,12 @@ function drawArticles(sources, zoomInCallback) {
 
     var titleAndIcon = titleAndIconFor(article);
 
-    if (article.image) {
-      images.push({ src: article.image,
-        source: source,
-        url: article.url
-      });
-    }
-
-    $("#sidebar .headlines").append(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
+    headlines.push(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
   };
 
+  $("#sidebar .headlines").append(headlines.join(''));
+
   $("#news-menu").fadeIn();
-
-  images.forEach(function(image) {
-    var img = new Image();
-    img.onload = function(e) {
-      if (shouldSkipImage(this) == true) { return; };
-
-      // $("#news-menu").fadeIn();
-    };
-
-    img.src = image.src;
-  });
 
   $("#sidebar").fadeIn();
 

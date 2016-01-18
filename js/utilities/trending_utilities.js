@@ -1,3 +1,5 @@
+var indexTrending = 0;
+
 function accordionHeadingFor(index, panelTitle, headlines) {
   var inClass = '';
 
@@ -22,8 +24,6 @@ function accordionHeadingFor(index, panelTitle, headlines) {
          '</div></div></div>';
 }
 
-
-var indexTrending = 0;
 function drawTrendingAccordion(panelTitle, sources) {
   var images = [];
   $("#sidebar .headlines").html('');
@@ -38,13 +38,6 @@ function drawTrendingAccordion(panelTitle, sources) {
     if (source == "NewsWeb") { source = "BBCNews"; }
 
     var titleAndIcon = titleAndIconFor(article);
-
-    if (article.image) {
-      images.push({ src: article.image,
-        source: source,
-        url: article.url
-      });
-    }
     headlines.push(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
   };
 
