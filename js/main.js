@@ -78,16 +78,22 @@ $(function() {
     $('#news-menu .trending li a').on('click', function(evt) {
       evt.preventDefault();
       pauseNews();
+      indexTrending = 0;
 
       selectedTrending = this.id;
 
+      $("#sidebar #trending-accordion").html('');
       $('#news-menu .trending li.active').toggleClass('active');
       $(this).parent('li').addClass('active');
 
       getRelevantNewsForTrending(selectedTrending, function() {
+        var trendingNews = {};
+
         for(trendingName in trendingData[selectedTrending]) {
-          drawArticles(trendingData[selectedTrending][trendingName], null);
+          drawTrendingAccordion(trendingName, trendingData[selectedTrending][trendingName]);
         };
+
+        // drawArticles(trendingNews, function() { return; });
       });
     });
   };

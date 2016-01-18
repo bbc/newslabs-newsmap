@@ -73,7 +73,8 @@ li.lead {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .sidebar h2 {
@@ -128,6 +129,16 @@ li.lead {
   z-index: 100;
   overflow: hidden;
   display: none;
+}
+
+#trending-accordion .panel .panel-collapse
+.panel-body ul.trending-headlines li  {
+  list-style: none;
+}
+
+#trending-accordion .panel .panel-collapse
+.panel-body ul.trending-headlines li a h4 i.fa-li  {
+  position: static;
 }
 
 .left-top-bottom-rounded-5px {

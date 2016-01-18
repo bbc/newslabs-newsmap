@@ -54,7 +54,7 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
       countryName = response.name;
     })
     .always(function() {
-      $.getJSON(juicerUrl(countryName, false))
+      $.getJSON(juicerUrl(countryName, true, 10))
         .done(function(response) {
 
           $("#news-menu").fadeOut();

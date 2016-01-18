@@ -33,15 +33,19 @@ function shouldSkipImage(contextOfThis) {
 function getRelevantNewsForTrending(selectedTrending, functionCallback) {
 
   var trendings = trendingData[selectedTrending];
+  var trendingsKeys = Object.keys(trendings);
+  var index = 0;
 
-  Object.keys(trendings).forEach(function(trendingName) {
-    $.getJSON(juicerUrl(trendingName.replace('_', ' '), true))
+  trendingsKeys.forEach(function(trendingName) {
+    $.getJSON(juicerUrl(trendingName.replace('_', ' '), false, 3))
       .done(function(response) {
         response["hits"].forEach(function(article) {
           trendingData[selectedTrending][trendingName][article.title.toLowerCase()] = article;
-        );
+        });
 
-        functionCallback();
+        if (++index == trendingsKeys.length) {
+          functionCallback();
+        }
       });
   });
 }

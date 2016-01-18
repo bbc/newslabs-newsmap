@@ -10,11 +10,11 @@ function whiteListedSources() {
           "product[]=STV"];
 }
 
-function juicerQueryParams(countryName, apiKey, shouldIncludeTrending) {
+function juicerQueryParams(countryName, apiKey, shouldIncludeTrending, responseSize) {
   var params = ["recent_first=yes",
           "content_format[]=TextualFormat",
           "like-text=" + encodeURIComponent(countryName),
-          "trending=true",
+          "size=" + responseSize,
           "api_key=" + encodeURIComponent(apiKey)];
 
   if (shouldIncludeTrending == true) {
@@ -24,10 +24,10 @@ function juicerQueryParams(countryName, apiKey, shouldIncludeTrending) {
   return params;
 }
 
-function juicerUrl(countryName, shouldIncludeTrending) {
+function juicerUrl(countryName, shouldIncludeTrending, responseSize) {
   var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
   var juicerApiHost = "http://juicer.api.bbci.co.uk";
-  var queryParams = juicerQueryParams(countryName, apiKey, shouldIncludeTrending).concat(whiteListedSources()).join('&')
+  var queryParams = juicerQueryParams(countryName, apiKey, shouldIncludeTrending, responseSize).concat(whiteListedSources()).join('&')
 
   return juicerApiHost + "/articles?" + queryParams;
 }
