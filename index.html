@@ -19,6 +19,12 @@
         </div>
         <input type="radio" id="north-up" name="north-up" checked="checked" class="hidden" />
         
+        <div class="news-control">
+          <a id='backward' class="btn btn-default disabled" href="#" role="button"><span class='fa fa-backward'></span></a>
+          <a id='play' class="btn btn-default" href="#" role="button"><span class='fa fa-play fa-pause'></span></a>
+          <a id='forward' class="btn btn-default" href="#" role="button"><span class='fa fa-forward'></span></a>
+          <a id='shuffle' class="btn btn-default on" href="#" role="button"><span class='fa fa-random'></span></a>
+        </div>
         <div id="images"></div>
         
         <div id="banner">
@@ -40,6 +46,11 @@
         <script src="js/topojson.min.js"></script>
         <script src="js/d3.geo.zoom.js"></script>
         <script src="js/queue.v1.min.js"></script>
+        <script src="js/utilities/url_functions.js"></script>
+        <script src="js/utilities/geo_functions.js"></script>
+        <script src="js/utilities/zoom_functions.js"></script>
+        <script src="js/utilities/news_functions.js"></script>
+        <script src="js/utilities/utilities_functions.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>
