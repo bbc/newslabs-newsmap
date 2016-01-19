@@ -278,9 +278,3 @@ a.concept-link {
   left: 0;
   padding-left: 120px;
 }
-
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .marquee p {
-    padding-top: 10px;
-  }
-}
