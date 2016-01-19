@@ -84,9 +84,18 @@ li.lead {
   margin-bottom: 20px;
 }
 
-.sidebar .loading {
+.sidebar .loader {
+  text-align: center;
+  position: absolute;
+  top: 200px;
+  width: 100%;
+  display: block;
+}
+
+.sidebar .loader.hidden {
   display: none;
 }
+
 .sidebar .loading img {
   width: 100%;
 }

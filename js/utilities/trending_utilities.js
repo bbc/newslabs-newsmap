@@ -38,6 +38,7 @@ function drawTrendingAccordion(panelTitle, sources) {
     headlines.push(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
   };
 
+  hideLoader();
   $("#sidebar #trending-accordion").append(accordionHeadingFor(indexTrending, panelTitle, headlines));
   indexTrending++;
 }

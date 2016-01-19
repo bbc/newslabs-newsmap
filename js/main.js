@@ -35,6 +35,10 @@ $(function() {
         toggleControl('play');
       }
 
+      $('#sidebar').fadeOut();
+      $('#news-menu').fadeOut();
+      showLoader();
+
       $('#news-menu .trending li.active').toggleClass('active');
       $('#news-menu .trending li a#News').parent('li').addClass('active');
 
@@ -83,8 +87,10 @@ $(function() {
       pauseNews();
       indexTrending = 0;
 
+      showLoader();
       selectedTrending = this.id;
 
+      $("#sidebar .headlines").html('');
       $("#sidebar #trending-accordion").html('');
       $('#news-menu .trending li.active').toggleClass('active');
       $(this).parent('li').addClass('active');

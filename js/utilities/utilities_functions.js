@@ -59,6 +59,14 @@ function mapClickedAtPosition(position, projection, callback) {
     });
 }
 
+function showLoader() {
+  $('#sidebar .loader').removeClass('hidden');
+}
+
+function hideLoader() {
+  $('#sidebar .loader').addClass('hidden');
+}
+
 function toggleControl(elementId) {
   switch (elementId) {
     case 'play':

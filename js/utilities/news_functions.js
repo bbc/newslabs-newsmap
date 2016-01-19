@@ -93,6 +93,7 @@ function drawArticles(sources, zoomInCallback) {
     headlines.push(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
   };
 
+  hideLoader();
   $("#sidebar .headlines").append(headlines.join(''));
 
   $("#news-menu").fadeIn();
