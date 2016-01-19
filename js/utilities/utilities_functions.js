@@ -7,6 +7,11 @@ var shouldPlayNews = true;
 var shouldShuffleNews = true;
 var canBackward = false;
 
+var newsToDisplay = {};
+var trendingData = {};
+var trendingTypesReady = [];
+var selectedTrending = null;
+
 function shouldResize() {
   $(window).resize(function() {
     rtime = new Date();
@@ -32,6 +37,11 @@ function resizeend() {
 /*** UI Events ***/
 
 function mapClickedAtPosition(position, projection, callback) {
+  newsToDisplay = {};
+  trendingData = {};
+  trendingTypesReady = [];
+  selectedTrending = 'News';
+
   var longLat = projection.invert([position.x, position.y]);
 
   latitude = longLat[1];
@@ -47,6 +57,14 @@ function mapClickedAtPosition(position, projection, callback) {
 
       callback(countryName);
     });
+}
+
+function showLoader() {
+  $('#sidebar .loader').removeClass('hidden');
+}
+
+function hideLoader() {
+  $('#sidebar .loader').addClass('hidden');
 }
 
 function toggleControl(elementId) {

@@ -54,20 +54,21 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
       countryName = response.name;
     })
     .always(function() {
-      $.getJSON(juicerUrl(countryName))
+      $.getJSON(juicerUrl(countryName, true, 10))
         .done(function(response) {
 
-          // Reset sidebar to be hidden, but redisplay it as animation ends
+          $("#news-menu").fadeOut();
           $("#sidebar").fadeOut();
-          $("#images").html('');
+          selectedTrending = null;
 
           setTimeout(function() {
-            structureNews(countryName, response, function() {
+            structureNews(countryName, response);
+            drawArticles(newsToDisplay, function() {
               if (shouldPlayNews == true) {
                 zoomIn(countries, projection, path, canvas, zoom, null);
               }
             });
-          }, 2000);
+          }, 1000);
 
           $("#banner .title").html("Stories linked to " + countryName);
       });

@@ -21,47 +21,82 @@ function titleAndIconFor(article) {
   return { title: title, icon: icon };
 }
 
-function shouldSkipImage(contextOfThis) {
-  if ((contextOfThis.width == contextOfThis.height) ||
-      (contextOfThis.width <= 75 || contextOfThis.height <= 75)) {
-    return true;
-  } else {
-    return false;
+function getRelevantNewsForTrending(selectedTrending, functionCallback) {
+  // if the trending news are already fetched
+  if (trendingTypesReady.indexOf(selectedTrending) > -1) {
+    functionCallback();
+    return;
   }
+
+  var trendings = trendingData[selectedTrending];
+  var trendingsKeys = Object.keys(trendings);
+  var index = 0;
+
+  trendingsKeys.forEach(function(trendingName) {
+    $.getJSON(juicerUrl(trendingName.replace('_', ' '), false, 3))
+      .done(function(response) {
+        response["hits"].forEach(function(article) {
+          trendingData[selectedTrending][trendingName][article.title.toLowerCase()] = article;
+        });
+
+        if (++index == trendingsKeys.length) {
+          trendingTypesReady.push(selectedTrending);
+          functionCallback();
+        }
+      });
+  });
 }
 
-function structureNews (countryName, response, zoomInCallback) {
+function structureNews (countryName, response) {
   $("#sidebar .title").html(countryName);
   $("#sidebar .headlines").html('');
 
-  var images = [];
+  newsToDisplay = {};
+
+  response['trending'].items.forEach(function(trending) {
+    var trendingType = trending.id.replace(/http:\/\/dbpedia\.org\/(ontology|resource)\//, '');
+
+    if (trendingType == 'Person') {
+      trendingType = 'People';
+    } else {
+      trendingType += 's';
+    }
+
+    trendingData[trendingType] = {};
+
+    trending.items.forEach(function(trendingItem) {
+      var numberOfTrendings = Object.keys(trendingData[trendingType]).length;
+
+      if (numberOfTrendings < 5) {
+        var trendingName = trendingItem.id.replace('http://dbpedia.org/resource/', '');
+        trendingData[trendingType][trendingName] = {};
+      }
+    });
+  });
 
   response["hits"].forEach(function(article) {
+    newsToDisplay["'" + article.title.toLowerCase() + "'"] = article;
+  });
+}
+
+function drawArticles(sources, zoomInCallback) {
+  var headlines = [];
+  $("#sidebar .headlines").html('');
+
+  for(var title in sources) {
+    var article = sources[title];
     var source = article.source['source-name'];
+
     if (source == "NewsWeb") { source = "BBCNews"; }
 
     var titleAndIcon = titleAndIconFor(article);
+    headlines.push(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
+  };
 
-    if (article.image) {
-      images.push({ src: article.image,
-        source: source,
-        url: article.url
-      });
-    }
+  hideLoader();
+  $("#sidebar .headlines").append(headlines.join(''));
 
-    $("#sidebar .headlines").append(headlineFor(titleAndIcon.title, source, article, titleAndIcon.icon));
-  });
-
-  images.forEach(function(image) {
-    var img = new Image();
-    img.onload = function(e) {
-      if (shouldSkipImage(this) == true) { return; };
-
-      $("#images").append('<a href="'+image.url+'" border="0"><img class="pull-right animated bounceIn" src="'+image.src+'" /></a>');
-    };
-
-    img.src = image.src;
-  });
+  $("#news-menu").fadeIn();
 
   $("#sidebar").fadeIn();
 

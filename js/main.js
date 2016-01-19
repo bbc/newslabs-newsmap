@@ -35,6 +35,13 @@ $(function() {
         toggleControl('play');
       }
 
+      $('#sidebar').fadeOut();
+      $('#news-menu').fadeOut();
+      showLoader();
+
+      $('#news-menu .trending li.active').toggleClass('active');
+      $('#news-menu .trending li a#News').parent('li').addClass('active');
+
       mapClickedAtPosition({x: evt.clientX, y: evt.clientY}, projection, function(countryName) {
         zoomIn(countries, projection, path, canvas, zoom, countryName);
       });
@@ -72,6 +79,33 @@ $(function() {
 
         var countryName = getCountryNameOnForward(countries);
         zoomIn(countries, projection, path, canvas, zoom, countryName);
+      }
+    });
+
+    $('#news-menu .trending li a').on('click', function(evt) {
+      evt.preventDefault();
+      pauseNews();
+      indexTrending = 0;
+
+      showLoader();
+      selectedTrending = this.id;
+
+      $("#sidebar .headlines").html('');
+      $("#sidebar #trending-accordion").html('');
+      $('#news-menu .trending li.active').toggleClass('active');
+      $(this).parent('li').addClass('active');
+
+      if (selectedTrending == 'News') {
+        drawArticles(newsToDisplay, function() { return; })
+
+      } else {
+        getRelevantNewsForTrending(selectedTrending, function() {
+          var trendingNews = {};
+
+          for(trendingName in trendingData[selectedTrending]) {
+            drawTrendingAccordion(trendingName, trendingData[selectedTrending][trendingName]);
+          };
+        });
       }
     });
   };
