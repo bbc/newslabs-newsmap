@@ -44,9 +44,10 @@ function zoomIn(countries, projection, path, canvas, zoom, countryName) {
 
   zoomBounds(projection, countries[countryId], path);
 
+  // to avoid problems with the mobile (really slow rendering)
+  // it is better to let D3 to decide the best easing function
+  // instead of setting it manually.
   canvas.transition()
-    .ease("quad-in-out")
-    .duration(2000) // see https://github.com/mbostock/d3/pull/2045
     .call(zoom.projection(projection).event);
 
   $.getJSON(tinataUrl(countryName))
