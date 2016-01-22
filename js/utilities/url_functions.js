@@ -25,7 +25,7 @@ function juicerQueryParams(countryName, apiKey, shouldIncludeTrending, responseS
 }
 
 function juicerUrl(countryName, shouldIncludeTrending, responseSize) {
-  var apiKey = "9OHbOpZpVh9tQZBDjwTlTmsCF2Ce0yGQ";
+  var apiKey = "CsWR1Sp2sduYlLJpbfndhRy3AdMieAlo";
   var juicerApiHost = "http://juicer.api.bbci.co.uk";
   var queryParams = juicerQueryParams(countryName, apiKey, shouldIncludeTrending, responseSize).concat(whiteListedSources()).join('&')
 
