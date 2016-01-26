@@ -1,0 +1,47 @@
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .marquee p {
+    padding-top: 10px;
+  }
+}
+
+@media screen and (max-width: 1020px) {
+  .news-control {
+    top: 35px;
+    left: 37px;
+  }
+
+  .news-control a {
+    font-size: 2em;
+  }
+
+  .sidebar {
+    width: 70%;
+  }
+  
+  #news-menu {
+    right: 70%;
+    width: 150px;
+    height: auto;
+  }
+
+  #news-menu .nav.navbar-nav li a i {
+    font-size: 3.2em;
+  }
+
+  #news-menu .nav.navbar-nav li a span {
+    font-size: 1.7em;
+    line-height: 2em;
+  }
+
+
+  #trending-accordion .panel .panel-collapse
+  .panel-body ul.trending-headlines li a h4  {
+    font-size: 1.4em;
+  }
+
+  .sidebar ul li a h4 {
+    margin-left: 0.8em;
+    font-size: 1.3em;
+    line-height: 1em;
+  }
+}
